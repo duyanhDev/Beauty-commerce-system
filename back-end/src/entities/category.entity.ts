@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
+import { CategoryTranslation } from './category_translations.entity';
 
 @Entity('categories')
 export class Category {
@@ -31,4 +32,7 @@ export class Category {
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
+
+  @OneToMany(() => CategoryTranslation, (t) => t.categories, { cascade: true })
+  translations: CategoryTranslation[];
 }

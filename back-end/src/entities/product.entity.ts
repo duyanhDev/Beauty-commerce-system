@@ -12,6 +12,7 @@ import { ProductImage } from './product-image.entity';
 import { ProductVariant } from './product-variant.entity';
 import { Review } from './review.entity';
 import { Wishlist } from './wishlist.entity';
+import { ProductTranslation } from './product-translations.entity';
 
 @Entity('products')
 export class Product {
@@ -20,6 +21,8 @@ export class Product {
 
   @Column({ length: 255 })
   name: string;
+  @Column({ length: 255 })
+  slug: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
@@ -45,4 +48,6 @@ export class Product {
 
   @OneToMany(() => Wishlist, (wl) => wl.product)
   wishlists: Wishlist[];
+  @OneToMany(() => ProductTranslation, (t) => t.product, { cascade: true })
+  translations: ProductTranslation[];
 }

@@ -22,6 +22,19 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { cacheConfig } from './config/cache.config';
+import { OrderStatusHistoryModule } from './modules/order-status-history/order-status-history.module';
+import { PaymentTransactionModule } from './modules/payment-transaction/payment-transaction.module';
+import { OrderItemModule } from './modules/order-item/order-item.module';
+import { VariantAttributeValueModule } from './modules/variant-attribute-value/variant-attribute-value.module';
+import { ProductImageModule } from './modules/product-image/product-image.module';
+import { VariantImagesModule } from './modules/variant_images/variant_images.module';
+import { CartItemsModule } from './modules/cart_items/cart_items.module';
+import { InventoryLogsModule } from './modules/inventory_logs/inventory_logs.module';
+import { CategoryTranslationsModule } from './modules/category_translations/category_translations.module';
+import { ReviewImagesModule } from './modules/review_images/review_images.module';
+import { ProductTranslationsModule } from './modules/product_translations/product_translations.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,6 +43,7 @@ import { AuthModule } from './modules/auth/auth.module';
       load: [configuration],
       validationSchema,
     }),
+    cacheConfig,
     TypeOrmModule.forRootAsync(databaseConfig),
     RolesModule,
     PermissionsModule,
@@ -47,6 +61,17 @@ import { AuthModule } from './modules/auth/auth.module';
     WishlistModule,
     InventoryModule,
     AuthModule,
+    OrderStatusHistoryModule,
+    PaymentTransactionModule,
+    OrderItemModule,
+    VariantAttributeValueModule,
+    ProductImageModule,
+    VariantImagesModule,
+    CartItemsModule,
+    InventoryLogsModule,
+    CategoryTranslationsModule,
+    ReviewImagesModule,
+    ProductTranslationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
