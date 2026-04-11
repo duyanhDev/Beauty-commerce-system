@@ -13,6 +13,7 @@ import { Order } from './order.entity';
 import { Cart } from './cart.entity';
 import { Review } from './review.entity';
 import { Wishlist } from './wishlist.entity';
+import { UserSession } from './user_sessions.enity';
 
 @Entity('users')
 export class User {
@@ -27,6 +28,9 @@ export class User {
 
   @Column({ length: 255 })
   password: string;
+
+  @Column({})
+  avatarUrl?: string;
 
   @Column({ length: 20, nullable: true })
   phone: string;
@@ -52,4 +56,7 @@ export class User {
 
   @OneToMany(() => Wishlist, (wl) => wl.user)
   wishlists: Wishlist[];
+
+  @OneToMany(() => UserSession, (u) => u.user)
+  sessions: UserSession[];
 }

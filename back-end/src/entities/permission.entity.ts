@@ -1,5 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
-import { Role } from './role.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+} from 'typeorm';
+import { RolePermission } from './role_permissions.entity';
 
 @Entity('permissions')
 export class Permission {
@@ -9,6 +15,11 @@ export class Permission {
   @Column({ unique: true, length: 100 })
   name: string;
 
-  @ManyToMany(() => Role, (role) => role.permissions)
-  roles: Role[];
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @OneToMany(() => RolePermission, (rp) => rp.permission)
+  rolePermissions: RolePermission[];
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 }

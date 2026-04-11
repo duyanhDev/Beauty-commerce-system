@@ -8,6 +8,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from '../../entities/index';
 import { Repository } from 'typeorm';
+import { QueryDto } from '@/dto/query.dto';
 
 @Injectable()
 export class RolesService {
@@ -36,12 +37,41 @@ export class RolesService {
     return await this.repoRole.save(role);
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll({ page = 1, limit = 10, q, sort, sortBy }: QueryDto) {
+    const qb = this.repoRole.createQueryBuilder('role');
+    const sortField = sortBy || 'id';
+    const sortOrder = sort || 'ASC';
+    if (q) {
+      qb.andWhere('role.name LIKE :q', { q: `%${q}%` });
+    }
+    qb.skip((page - 1) * limit)
+      .take(limit)
+      .orderBy(`${sortField}`, sortOrder);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+      },
+    };
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} role`;
+    try {
+      const roleExist = this.repoRole.findOne({ where: { id: id } });
+
+      if (!roleExist) {
+        throw new NotFoundException(`Không tìm thấy quyền theo id ${id} `);
+      }
+
+      return roleExist;
+    } catch (error: any) {
+      console.log(error);
+    }
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {

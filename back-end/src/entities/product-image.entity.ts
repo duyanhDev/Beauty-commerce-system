@@ -18,4 +18,20 @@ export class ProductImage {
 
   @Column({ name: 'image_url', length: 500 })
   imageUrl: string;
+
+  // 🔥 QUAN TRỌNG (bắt buộc)
+  @Column({ name: 'public_id', length: 255 })
+  publicId: string;
+
+  // (optional nhưng nên có)
+  @Column({ name: 'is_main', default: false })
+  isMain: boolean;
+
+  // (optional)
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 }

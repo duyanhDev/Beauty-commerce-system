@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY, PERMISSIONS_KEY } from '../decorators/index';
+import { ROLES_KEY, PERMISSIONS_KEY } from '../decorators';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -22,41 +22,37 @@ export class RolesGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    // Không yêu cầu gì → cho qua (user đã login là đủ)
     if (!requiredRoles?.length && !requiredPermissions?.length) return true;
 
     const { user } = context.switchToHttp().getRequest();
 
-    if (!user?.role) {
-      throw new ForbiddenException('Bạn không có quyền truy cập');
+    if (!user) {
+      throw new ForbiddenException('Chưa đăng nhập');
     }
 
-    const userRoleName: string = user.role.name;
-    const userPermissions: string[] =
-      user.role.permissions?.map((p: { name: string }) => p.name) ?? [];
+    const userRole = user.role;
+    const userPermissions = new Set(user.permissions || []);
 
-    // ── Check ROLE ──────────────────────────────────────────
+    // ── ROLE ──
     if (requiredRoles?.length) {
-      const hasRole = requiredRoles.includes(userRoleName);
-      if (!hasRole) {
+      if (!requiredRoles.includes(userRole)) {
         throw new ForbiddenException(
           `Yêu cầu role: ${requiredRoles.join(', ')}`,
         );
       }
     }
 
-    // ── Check PERMISSION ────────────────────────────────────
+    // ── PERMISSION ──
     if (requiredPermissions?.length) {
-      // admin luôn có tất cả quyền
-      if (userRoleName === 'admin') return true;
+      if (userRole === 'admin') return true;
 
-      const hasPermission = requiredPermissions.some((p) =>
-        userPermissions.includes(p),
+      const hasPermission = requiredPermissions.every((p) =>
+        userPermissions.has(p),
       );
 
       if (!hasPermission) {
         throw new ForbiddenException(
-          `Yêu cầu quyền: ${requiredPermissions.join(', ')}`,
+          `Thiếu quyền: ${requiredPermissions.join(', ')}`,
         );
       }
     }

@@ -6,12 +6,19 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiParam, ApiResponse } from '@nestjs/swagger';
+import { QueryDto } from '@/dto/query.dto';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { Permissions } from '@/common/decorators';
+import { RolesGuard } from '@/common/guards/roles.guard';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
@@ -29,14 +36,24 @@ export class RolesController {
     };
   }
 
+  @Permissions('user:read')
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  @ApiResponse({ status: 201, description: 'Lấy dữ liệu thành công' })
+  @ApiResponse({ status: 400, description: 'Dữ liệu không hợp lệ' })
+  @ApiResponse({ status: 404, description: 'Không tìm thấy' })
+  async findAll(@Query() queryDTO: QueryDto) {
+    const result = await this.rolesService.findAll(queryDTO);
+
+    return {
+      EC: 0,
+      message: result?.data.length === 0 ? 'Không tìm thấy dữ liệu' : 'Success',
+      data: result,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.rolesService.findOne(id);
   }
 
   @Patch(':id')

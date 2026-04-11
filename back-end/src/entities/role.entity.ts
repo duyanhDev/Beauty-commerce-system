@@ -3,11 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  ManyToMany,
-  JoinTable,
+  CreateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
-import { Permission } from './permission.entity';
+import { RolePermission } from './role_permissions.entity';
 
 @Entity('roles')
 export class Role {
@@ -23,13 +22,9 @@ export class Role {
   @OneToMany(() => User, (user) => user.role)
   users: User[];
 
-  @ManyToMany(() => Permission, (permission) => permission.roles, {
-    eager: true,
-  })
-  @JoinTable({
-    name: 'role_permissions',
-    joinColumn: { name: 'role_id' },
-    inverseJoinColumn: { name: 'permission_id' },
-  })
-  permissions: Permission[];
+  @OneToMany(() => RolePermission, (rp) => rp.role)
+  rolePermissions: RolePermission[];
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 }

@@ -19,15 +19,31 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: configService.get('JWT_SECRET', 'secret_key'),
     });
   }
-
   async validate(payload: { sub: number; email: string }) {
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },
-      relations: ['role', 'role.permissions'],
+      relations: {
+        role: {
+          rolePermissions: {
+            permission: true,
+          },
+        },
+      },
     });
 
-    if (!user) throw new UnauthorizedException('User không tồn tại');
+    if (!user) {
+      throw new UnauthorizedException('User không tồn tại');
+    }
 
-    return user; // → gán vào request.user
+    const permissions =
+      user.role.rolePermissions?.map((rp) => rp.permission.name) ?? [];
+    console.log('permissions', permissions);
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role.name,
+      permissions,
+    };
   }
 }

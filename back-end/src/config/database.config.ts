@@ -6,7 +6,10 @@ export const databaseConfig: TypeOrmModuleAsyncOptions = {
   useFactory: (configService: ConfigService) => ({
     type: 'mysql',
     port: configService.get<number>('DB_PORT'),
-    url: process.env.MYSQL_PUBLIC_URL,
+    host: configService.get<string>('DB_HOST'),
+    username: configService.get<string>('DB_USERNAME'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_NAME'),
     autoLoadEntities: true,
     synchronize: true,
     entities: [__dirname + '/**/*.entity{.ts,.js}'],

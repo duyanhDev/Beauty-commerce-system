@@ -34,6 +34,9 @@ import { InventoryLogsModule } from './modules/inventory_logs/inventory_logs.mod
 import { CategoryTranslationsModule } from './modules/category_translations/category_translations.module';
 import { ReviewImagesModule } from './modules/review_images/review_images.module';
 import { ProductTranslationsModule } from './modules/product_translations/product_translations.module';
+import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
+import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -72,6 +75,7 @@ import { ProductTranslationsModule } from './modules/product_translations/produc
     CategoryTranslationsModule,
     ReviewImagesModule,
     ProductTranslationsModule,
+    RolePermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
