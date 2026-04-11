@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Category } from './category.entity';
 import { ProductImage } from './product-image.entity';
-import { ProductVariant } from './product-variant.entity';
+import { ProductVariant } from './product_variants.entity';
 import { Review } from './review.entity';
 import { Wishlist } from './wishlist.entity';
 import { ProductTranslation } from './product-translations.entity';

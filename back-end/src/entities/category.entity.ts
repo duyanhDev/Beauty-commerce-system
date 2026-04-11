@@ -33,6 +33,6 @@ export class Category {
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
 
-  @OneToMany(() => CategoryTranslation, (t) => t.categories, { cascade: true })
-  translations: CategoryTranslation[];
+  @OneToMany(() => CategoryTranslation, (t) => t.categorie, { cascade: true })
+  translation: CategoryTranslation[];
 }

@@ -3,11 +3,20 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import 'tsconfig-paths/register';
+import cookieParser from 'cookie-parser';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // ====== Global Prefix ======
   app.setGlobalPrefix('api/v1');
+
+  app.use(cookieParser()); // ✅ Bắt buộc để đọc req.cookies
+
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
 
   // ====== Validation Pipe ======
   app.useGlobalPipes(

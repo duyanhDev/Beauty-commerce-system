@@ -5,7 +5,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../../../entities/user.entity';
+import type { Request } from 'express';
 
+const cookieExtractor = (req: Request): string | null => {
+  return req?.cookies?.['access_token'] ?? null;
+};
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -14,11 +18,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: cookieExtractor,
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET', 'secret_key'),
     });
   }
+
   async validate(payload: { sub: number; email: string }) {
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },

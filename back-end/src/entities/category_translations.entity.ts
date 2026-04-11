@@ -15,6 +15,6 @@ export class CategoryTranslation {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ManyToMany(() => Category, (cat) => cat.translations)
-  categories: Category[];
+  @ManyToMany(() => Category, (cat) => cat.translation)
+  categorie: Category[];
 }

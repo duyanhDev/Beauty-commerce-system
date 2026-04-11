@@ -5,7 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ProductVariant } from './product-variant.entity';
+import { ProductVariant } from './product_variants.entity';
 
 @Entity('variant_images')
 export class VariantImage {

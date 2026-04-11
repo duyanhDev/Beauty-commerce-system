@@ -6,7 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { ProductVariant } from './product-variant.entity';
+import { ProductVariant } from './product_variants.entity';
 
 @Entity('inventory_logs')
 export class InventoryLog {

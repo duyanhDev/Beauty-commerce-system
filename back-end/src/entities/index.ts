@@ -14,7 +14,7 @@ export { ProductImage } from './product-image.entity';
 // Variant System
 export { ProductAttribute } from './product-attribute.entity';
 export { AttributeValue } from './attribute-value.entity';
-export { ProductVariant } from './product-variant.entity';
+export { ProductVariant } from './product_variants.entity';
 export { VariantAttributeValue } from './variant-attribute-value.entity';
 export { VariantImage } from './variant-image.entity';
 

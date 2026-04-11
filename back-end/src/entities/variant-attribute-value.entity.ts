@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { ProductVariant } from './product-variant.entity';
+import { ProductVariant } from './product_variants.entity';
 import { AttributeValue } from './attribute-value.entity';
 
 @Entity('variant_attribute_values')
