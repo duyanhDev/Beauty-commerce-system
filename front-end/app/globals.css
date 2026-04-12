@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@custom-variant dark (&:where(.dark, .dark *));
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}

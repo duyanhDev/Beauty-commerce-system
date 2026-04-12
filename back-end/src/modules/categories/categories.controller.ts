@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -15,6 +16,7 @@ import { CreateCategoryTranslationDto } from '../category_translations/dto/creat
 import { ApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
+import { QueryDto } from '@/shared/queryDto.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('categories')
@@ -38,21 +40,39 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  async findAll(@Query() dto: QueryDto) {
+    const data = await this.categoriesService.findAll(dto);
+
+    return {
+      EC: 0,
+      message: 'Tạo categories thành công',
+      data: data,
+    };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  @Get(':slug')
+  async findOne(@Param('slug') slug: string) {
+    const result = await this.categoriesService.findOne(slug);
+
+    return {
+      EC: 0,
+      message: 'Lấy thành công category',
+      data: result,
+    };
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id') id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    const result = await this.categoriesService.update(+id, updateCategoryDto);
+
+    return {
+      EC: 0,
+      message: 'Update thành công category',
+      data: result,
+    };
   }
 
   @Delete(':id')

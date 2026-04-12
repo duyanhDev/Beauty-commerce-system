@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { CategoryTranslation } from './category_translations.entity';
@@ -35,4 +36,11 @@ export class Category {
 
   @OneToMany(() => CategoryTranslation, (t) => t.category, { cascade: true })
   translations: CategoryTranslation[];
+
+  @CreateDateColumn({
+    name: 'created_at',
+    type: 'timestamp',
+    precision: 0, // 🔥 bỏ milliseconds/microseconds
+  })
+  createdAt: Date;
 }
