@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Category } from './category.entity';
 
 @Entity('category_translations')
@@ -15,6 +22,7 @@ export class CategoryTranslation {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ManyToMany(() => Category, (cat) => cat.translation)
-  categorie: Category[];
+  @ManyToOne(() => Category, (category) => category.translations)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 }

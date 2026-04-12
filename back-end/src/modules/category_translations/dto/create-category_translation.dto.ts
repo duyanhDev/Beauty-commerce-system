@@ -2,7 +2,7 @@ import { IsString, IsOptional, IsIn } from 'class-validator';
 
 export class CreateCategoryTranslationDto {
   @IsString()
-  @IsIn(['vi', 'en', 'jp'])
+  @IsIn(['vi', 'en', 'ja'])
   language: string;
 
   @IsString()

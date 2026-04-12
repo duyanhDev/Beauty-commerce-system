@@ -14,14 +14,14 @@ export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, unique: true })
   name: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ length: 100, nullable: true })
-  sku: string;
+  slug: string;
 
   @ManyToOne(() => Category, (cat) => cat.children, { nullable: true })
   @JoinColumn({ name: 'parent_id' })
@@ -33,6 +33,6 @@ export class Category {
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
 
-  @OneToMany(() => CategoryTranslation, (t) => t.categorie, { cascade: true })
-  translation: CategoryTranslation[];
+  @OneToMany(() => CategoryTranslation, (t) => t.category, { cascade: true })
+  translations: CategoryTranslation[];
 }

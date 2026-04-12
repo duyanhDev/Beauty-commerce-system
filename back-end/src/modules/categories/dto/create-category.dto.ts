@@ -18,7 +18,7 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @IsString()
-  sku?: string;
+  slug?: string;
 
   // 👇 category cha
   @IsOptional()
@@ -30,5 +30,5 @@ export class CreateCategoryDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateCategoryTranslationDto)
-  translations?: CreateCategoryTranslationDto[];
+  translation?: CreateCategoryTranslationDto[];
 }
