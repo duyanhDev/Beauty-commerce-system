@@ -40,7 +40,7 @@ export class Category {
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
-    precision: 0, // 🔥 bỏ milliseconds/microseconds
+    precision: 0,
   })
   createdAt: Date;
 }
