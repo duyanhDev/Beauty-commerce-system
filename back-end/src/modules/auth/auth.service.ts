@@ -144,7 +144,7 @@ export class AuthService {
   async getSessions(userId: number) {
     return this.sessionRepo.find({
       where: { user: { id: userId } },
-      select: ['id', 'device', 'ip', 'createdAt'],
+      select: ['id', 'device', 'ip', 'created_at'],
     });
   }
 }

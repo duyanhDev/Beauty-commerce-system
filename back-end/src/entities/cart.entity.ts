@@ -25,8 +25,8 @@ export class Cart {
   @Column({ length: 50, default: 'active' })
   status: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 
   @OneToMany(() => CartItem, (item) => item.cart, { cascade: true })
   items: CartItem[];

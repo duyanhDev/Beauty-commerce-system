@@ -35,8 +35,7 @@ import { CategoryTranslationsModule } from './modules/category_translations/cate
 import { ReviewImagesModule } from './modules/review_images/review_images.module';
 import { ProductTranslationsModule } from './modules/product_translations/product_translations.module';
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
-import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
-import { JwtModule } from '@nestjs/jwt';
+import { BrandModule } from './modules/brand/brand.module';
 
 @Module({
   imports: [
@@ -76,6 +75,7 @@ import { JwtModule } from '@nestjs/jwt';
     ReviewImagesModule,
     ProductTranslationsModule,
     RolePermissionsModule,
+    BrandModule,
   ],
   controllers: [AppController],
   providers: [AppService],

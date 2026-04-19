@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import 'tsconfig-paths/register';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -14,7 +13,7 @@ async function bootstrap() {
   app.use(cookieParser()); // ✅ Bắt buộc để đọc req.cookies
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost', 'http://localhost:3000'],
     credentials: true,
   });
 
@@ -51,8 +50,8 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port);
+  const port = process.env.PORT ?? 5000;
+  await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Server is running on: http://localhost:${port}/api/v1`);
   console.log(`📚 Swagger docs:         http://localhost:${port}/api/docs`);

@@ -18,7 +18,7 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { Permissions } from '@/common/decorators';
 import { RolesGuard } from '@/common/guards/roles.guard';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}

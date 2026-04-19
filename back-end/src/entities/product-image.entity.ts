@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
 
@@ -27,11 +28,6 @@ export class ProductImage {
   @Column({ name: 'is_main', default: false })
   isMain: boolean;
 
-  // (optional)
-  @Column({
-    name: 'created_at',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

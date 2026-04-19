@@ -39,8 +39,8 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 
   @OneToMany(() => ShippingAddress, (addr) => addr.user)
   shippingAddresses: ShippingAddress[];

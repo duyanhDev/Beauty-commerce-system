@@ -37,10 +37,6 @@ export class Category {
   @OneToMany(() => CategoryTranslation, (t) => t.category, { cascade: true })
   translations: CategoryTranslation[];
 
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamp',
-    precision: 0,
-  })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

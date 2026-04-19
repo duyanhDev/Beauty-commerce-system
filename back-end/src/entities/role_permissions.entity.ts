@@ -30,7 +30,6 @@ export class RolePermission {
 
   @Column({ nullable: true })
   assignedBy: number;
-
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime' })
   assignedAt: Date;
 }

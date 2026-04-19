@@ -27,9 +27,8 @@ export class Order {
   @Column({ length: 50 })
   status: string; // pending | confirmed | shipping | delivered | cancelled
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   items: OrderItem[];
 

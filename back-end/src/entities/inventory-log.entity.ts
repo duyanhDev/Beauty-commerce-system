@@ -25,6 +25,6 @@ export class InventoryLog {
   @Column({ length: 255, nullable: true })
   reason: string; // e.g. "order_placed", "manual_adjust", "return"
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

@@ -26,6 +26,6 @@ export class UserSession {
   @Column({ nullable: true })
   ip: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

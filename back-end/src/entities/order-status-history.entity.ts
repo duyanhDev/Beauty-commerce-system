@@ -24,7 +24,6 @@ export class OrderStatusHistory {
 
   @Column({ type: 'text', nullable: true })
   note: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

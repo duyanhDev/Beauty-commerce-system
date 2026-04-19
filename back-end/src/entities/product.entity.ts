@@ -34,8 +34,8 @@ export class Product {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 
   @OneToMany(() => ProductImage, (img) => img.product, { cascade: true })
   images: ProductImage[];

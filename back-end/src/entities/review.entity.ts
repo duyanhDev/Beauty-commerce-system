@@ -32,8 +32,8 @@ export class Review {
   @Column({ type: 'text', nullable: true })
   comment: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 
   @OneToMany(() => ReviewImage, (img) => img.review, { cascade: true })
   images: ReviewImage[];

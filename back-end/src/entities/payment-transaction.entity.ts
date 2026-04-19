@@ -29,6 +29,6 @@ export class PaymentTransaction {
   @Column({ name: 'transaction_code', length: 255, nullable: true })
   transactionCode: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

@@ -25,6 +25,6 @@ export class Role {
   @OneToMany(() => RolePermission, (rp) => rp.role)
   rolePermissions: RolePermission[];
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }
