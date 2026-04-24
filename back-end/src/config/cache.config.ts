@@ -1,12 +1,13 @@
+// cache.config.ts
 import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
+import KeyvRedis from '@keyv/redis';
 
 export const cacheConfig = CacheModule.registerAsync({
+  isGlobal: true,
   useFactory: async () => ({
-    store: redisStore as any,
-    host: 'localhost',
-    port: 6379,
-    ttl: 60,
-    isGlobal: true,
+    stores: [
+      new KeyvRedis('redis://localhost:6379'),
+    ],
+    ttl: 60 * 1000, // milliseconds
   }),
 });

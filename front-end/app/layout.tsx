@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import Navbar from "./navbar/navbar";
+import { Be_Vietnam_Pro } from "next/font/google"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["vietnamese", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-sans",
+  display: "swap",  // ← thêm dòng này
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,9 +29,11 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${beVietnamPro.variable} h-full antialiased`}
     >
+  
       <body className="min-h-full flex flex-col ">
+        <Navbar/>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   private signTokens(payload: { sub: number; email: string }) {
-    const access_token = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const access_token = this.jwtService.sign(payload, { expiresIn: '1d' });
     const refresh_token = this.jwtService.sign(payload, { expiresIn: '7d' });
     return { access_token, refresh_token };
   }

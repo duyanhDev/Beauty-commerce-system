@@ -39,3 +39,12 @@ export { Wishlist } from './wishlist.entity';
 
 // Inventory
 export { InventoryLog } from './inventory-log.entity';
+
+export {Gender} from './gender.entity'
+
+export {Brand} from './brand.entity'
+
+export {ProductTranslation} from './product-translations.entity'
+
+export {Country} from './country.entity'
+

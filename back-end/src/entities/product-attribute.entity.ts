@@ -6,9 +6,11 @@ export class ProductAttribute {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 100 })
+  @Column({ length: 100 , unique:true})
   name: string; // e.g. color, size, volume, skin_type
 
+  @Column({type:"text",nullable: true })
+  description: string
   @OneToMany(() => AttributeValue, (av) => av.attribute, { cascade: true })
   values: AttributeValue[];
 }

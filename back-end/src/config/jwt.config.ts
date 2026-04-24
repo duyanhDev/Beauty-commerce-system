@@ -10,7 +10,7 @@ export const jwtConfigAsync = (
   },
 });
 export const jwtAccessConfig = {
-  expiresIn: '15m',
+  expiresIn: '1d',
 };
 
 export const jwtRefreshConfig = {
