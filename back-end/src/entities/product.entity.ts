@@ -34,9 +34,6 @@ export class Product {
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @CreateDateColumn({ type: 'datetime' })
-  created_at: Date;
-
   @OneToMany(() => ProductImage, (img) => img.product, { cascade: true })
   images: ProductImage[];
 
@@ -64,4 +61,7 @@ export class Product {
   @ManyToOne(() => Gender, (g) => g.products)
   @JoinColumn({ name: 'gender_id' })
   genders: Gender;
+
+  @CreateDateColumn({ type: 'datetime' })
+  created_at: Date;
 }

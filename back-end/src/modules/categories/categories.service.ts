@@ -73,7 +73,7 @@ export class CategoriesService {
     const { page = 1, limit = 10, keyword, sortBy, order } = dto;
 
     const allowedSortFields: Record<string, string> = {
-      created_at: 'category.created_at',
+      createdAt: 'category.created_at',
       name: 'category.name',
       id: 'category.id',
     };
