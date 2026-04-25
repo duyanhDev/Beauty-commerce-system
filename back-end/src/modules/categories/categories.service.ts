@@ -73,7 +73,7 @@ export class CategoriesService {
     const { page = 1, limit = 10, keyword, sortBy, order } = dto;
 
     const allowedSortFields: Record<string, string> = {
-      createdAt: 'category.createdAt',
+      created_at: 'category.created_at',
       name: 'category.name',
       id: 'category.id',
     };
@@ -89,7 +89,7 @@ export class CategoriesService {
       });
     }
 
-    const sortField = allowedSortFields[sortBy] ?? 'category.createdAt';
+    const sortField = allowedSortFields[sortBy] ?? 'category.created_at';
     query.orderBy(sortField, order === 'DESC' ? 'DESC' : 'ASC');
 
     query.skip((page - 1) * limit).take(limit);

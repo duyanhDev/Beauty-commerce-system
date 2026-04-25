@@ -36,6 +36,7 @@ import { ReviewImagesModule } from './modules/review_images/review_images.module
 import { ProductTranslationsModule } from './modules/product_translations/product_translations.module';
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
 import { BrandModule } from './modules/brand/brand.module';
+import { CountryModule } from './modules/country/country.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { BrandModule } from './modules/brand/brand.module';
     ProductTranslationsModule,
     RolePermissionsModule,
     BrandModule,
+    CountryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

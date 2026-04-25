@@ -64,7 +64,7 @@ export class AuthController {
       httpOnly: true, // JS không đọc được
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000, // 15 phút (ms)
+      maxAge: 24 * 60 * 1000, // 15 phút (ms)
     });
 
     res.cookie('refresh_token', refresh_token, {
@@ -94,7 +94,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
+      maxAge: 24 * 60 * 1000,
     });
 
     res.cookie('refresh_token', refresh_token, {
