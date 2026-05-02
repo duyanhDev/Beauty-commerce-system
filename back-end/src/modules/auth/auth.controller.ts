@@ -74,7 +74,13 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày (ms)
     });
 
-    return { user };
+    return {
+      EC: 0,
+      message: 'Đăng nhập thành công',
+      user,
+      access_token,
+      refresh_token,
+    };
   }
   // ─── POST /auth/refresh ────────────────────────────────
   @Post('refresh')
