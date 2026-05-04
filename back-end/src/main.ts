@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  console.log('🔥 Step 3');
   // ====== Global Prefix ======
   app.setGlobalPrefix('api/v1');
 
@@ -50,7 +51,12 @@ async function bootstrap() {
     },
   });
 
+  console.log('🔥 Step 3');
+
   const port = process.env.PORT ?? 5000;
+
+  console.log(port);
+
   await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Server is running on: http://localhost:${port}/api/v1`);

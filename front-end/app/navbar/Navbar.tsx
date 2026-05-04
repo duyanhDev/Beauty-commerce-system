@@ -10,7 +10,7 @@ import {
   ChevronDown,
   Globe,
   Heart,
-  Sparkles,
+  Leaf,
 } from "lucide-react";
 import {
   Select,
@@ -81,7 +81,7 @@ const LANGUAGES: Language[] = [
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');`;
 
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
@@ -90,31 +90,32 @@ function Logo(): React.JSX.Element {
     <a href="/" className="flex items-center gap-3 group select-none shrink-0">
       <span className="relative flex items-center justify-center w-9 h-9 shrink-0">
         <span
-          className="absolute inset-0 rounded-full border border-rose-300/60
-            bg-gradient-to-br from-rose-50 to-pink-100
-            group-hover:from-rose-100 group-hover:to-pink-200
+          className="absolute inset-0 rounded-full border border-emerald-300/50
+            bg-linear-to-br from-emerald-50 to-green-100
+            group-hover:from-emerald-100 group-hover:to-green-200
             transition-all duration-500"
         />
-        <Sparkles
+        <Leaf
           size={16}
           strokeWidth={1.5}
-          className="relative text-rose-400 group-hover:text-rose-500 transition-colors duration-300"
+          className="relative text-emerald-600 group-hover:text-emerald-700 transition-colors duration-300"
         />
       </span>
       <span className="flex flex-col leading-none">
         <span
-          className="text-[10px] tracking-[0.25em] font-medium uppercase text-rose-400/80
-            group-hover:text-rose-500 transition-colors duration-300"
-          style={{ fontFamily: "'Jost', sans-serif" }}
+          className="text-[9px] tracking-[0.3em] font-medium uppercase text-emerald-500/80
+            group-hover:text-emerald-600 transition-colors duration-300"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
-          est. 2024
+          botanical · 2024
         </span>
         <span
-          className="text-[22px] font-light tracking-wide text-stone-800
+          className="text-[22px] font-normal tracking-wide text-stone-800
             group-hover:text-stone-900 transition-colors duration-300"
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
         >
-          Beauty<em className="not-italic text-rose-400 font-normal">Shop</em>
+          Verdure
+          <em className="not-italic text-emerald-600 font-normal">Lab</em>
         </span>
       </span>
     </a>
@@ -129,15 +130,15 @@ function NavLink({ link, active, onClick }: NavLinkProps): React.JSX.Element {
       href={link.href}
       onClick={onClick}
       className={`
-        relative flex items-center gap-0.5 text-[12.5px] tracking-[0.1em] uppercase
+        relative flex items-center gap-0.5 text-[12px] tracking-[0.12em] uppercase
         transition-all duration-300 group py-1 shrink-0
         ${
           active
-            ? "text-rose-500 font-medium"
-            : "text-stone-500 hover:text-rose-400 font-light"
+            ? "text-emerald-700 font-medium"
+            : "text-stone-500 hover:text-emerald-600 font-light"
         }
       `}
-      style={{ fontFamily: "'Jost', sans-serif" }}
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       {link.label}
       {link.hasDropdown && (
@@ -146,15 +147,12 @@ function NavLink({ link, active, onClick }: NavLinkProps): React.JSX.Element {
           className="opacity-50 group-hover:opacity-80 group-hover:translate-y-px transition-all duration-200"
         />
       )}
+      {/* Animated underline */}
       <span
         className={`
-          absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-rose-400
-          transition-all duration-300
-          ${
-            active
-              ? "w-1 h-1 opacity-100"
-              : "w-0 h-0 opacity-0 group-hover:w-1 group-hover:h-1 group-hover:opacity-60"
-          }
+          absolute -bottom-0.5 left-0 h-px rounded-full bg-emerald-500
+          transition-all duration-300 ease-out
+          ${active ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-50"}
         `}
       />
     </a>
@@ -176,7 +174,7 @@ function IconButton({
       onClick={onClick}
       className={`
         relative flex items-center justify-center w-9 h-9 rounded-full
-        text-stone-500 hover:text-rose-500 hover:bg-rose-50/80
+        text-stone-500 hover:text-emerald-700 hover:bg-emerald-50/80
         active:scale-95 transition-all duration-200
         ${className}
       `}
@@ -185,10 +183,10 @@ function IconButton({
       {badge !== undefined && badge > 0 && (
         <span
           className="absolute -top-0.5 -right-0.5 flex items-center justify-center
-            min-w-[16px] h-4 px-0.5 rounded-full
-            bg-gradient-to-br from-rose-400 to-pink-500
+            min-w-4 h-4 px-0.5 rounded-full
+            bg-linear-to-br from-emerald-500 to-green-600
             text-white text-[9px] font-bold leading-none
-            shadow-sm shadow-rose-200"
+            shadow-sm shadow-emerald-200"
         >
           {badge > 9 ? "9+" : badge}
         </span>
@@ -211,16 +209,16 @@ function LanguageSwitcher({
       <SelectTrigger
         className="
           h-8 w-auto gap-1 pl-2 pr-2 rounded-full
-          border border-stone-200/80 bg-white/60 backdrop-blur-sm
+          border border-emerald-200/60 bg-emerald-50/40 backdrop-blur-sm
           text-[11px] font-medium tracking-[0.06em] text-stone-500
-          hover:bg-rose-50/80 hover:border-rose-200 hover:text-rose-500
-          focus:ring-1 focus:ring-rose-200 focus:ring-offset-0
+          hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700
+          focus:ring-1 focus:ring-emerald-200 focus:ring-offset-0
           transition-all duration-200 shadow-none
-          [&>svg]:w-3 [&>svg]:h-3 [&>svg]:text-stone-400
+          [&>svg]:w-3 [&>svg]:h-3 [&>svg]:text-emerald-400
         "
-        style={{ fontFamily: "'Jost', sans-serif" }}
+        style={{ fontFamily: "'DM Sans', sans-serif" }}
       >
-        <Globe size={12} className="text-stone-400 shrink-0" />
+        <Globe size={12} className="text-emerald-400 shrink-0" />
         <SelectValue>
           <span className="flex items-center gap-1">
             <span className="text-sm leading-none">{current.flag}</span>
@@ -231,10 +229,10 @@ function LanguageSwitcher({
 
       <SelectContent
         className="
-          min-w-[160px] rounded-2xl
-          border border-rose-100/80
+          min-w-40 rounded-2xl
+          border border-emerald-100/80
           bg-white/95 backdrop-blur-xl
-          shadow-xl shadow-rose-100/40
+          shadow-xl shadow-emerald-100/40
           p-1.5 mt-1
         "
       >
@@ -245,12 +243,12 @@ function LanguageSwitcher({
             className="
               rounded-xl px-3 py-2.5 text-[13px] font-light text-stone-600
               cursor-pointer select-none
-              hover:bg-rose-50 hover:text-rose-600
-              focus:bg-rose-50 focus:text-rose-600
-              data-[state=checked]:bg-rose-50/80 data-[state=checked]:text-rose-500
+              hover:bg-emerald-50 hover:text-emerald-700
+              focus:bg-emerald-50 focus:text-emerald-700
+              data-[state=checked]:bg-emerald-50/80 data-[state=checked]:text-emerald-600
               transition-colors duration-150
             "
-            style={{ fontFamily: "'Jost', sans-serif" }}
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
             <span className="flex items-center gap-2.5">
               <span className="text-base leading-none">{l.flag}</span>
@@ -272,13 +270,13 @@ function AnnouncementBar(): React.JSX.Element {
   return (
     <div
       className="h-8 w-full flex items-center justify-center
-        bg-gradient-to-r from-rose-400 via-pink-400 to-rose-400
-        text-white text-[11px] tracking-[0.18em] font-light uppercase"
-      style={{ fontFamily: "'Jost', sans-serif" }}
+       bg-linear-to-br from-emerald-800 via-green-700 to-emerald-800
+        text-white/90 text-[10.5px] tracking-[0.2em] font-light uppercase"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      <Heart size={9} className="mr-2 opacity-70" fill="currentColor" />
-      Free shipping on orders over $50 · New arrivals every week
-      <Heart size={9} className="ml-2 opacity-70" fill="currentColor" />
+      <Leaf size={9} className="mr-2 opacity-60" fill="currentColor" />
+      Free shipping on orders over $50 · 100% natural ingredients
+      <Leaf size={9} className="ml-2 opacity-60" fill="currentColor" />
     </div>
   );
 }
@@ -333,19 +331,22 @@ function MobileDrawer({
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
       >
+        {/* Decorative top accent */}
+        <div className="h-1 w-fullbg-linear-to-br from-emerald-400 via-green-500 to-emerald-600" />
+
         <div className="flex items-center justify-between px-7 py-6">
           <Logo />
           <button
             onClick={onClose}
             aria-label="Close menu"
-            className="p-2 rounded-full text-stone-400 hover:text-rose-400
-              hover:bg-rose-50 transition-all duration-200 -mr-1"
+            className="p-2 rounded-full text-stone-400 hover:text-emerald-600
+              hover:bg-emerald-50 transition-all duration-200 -mr-1"
           >
             <X size={18} strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="mx-7 h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent" />
+        <div className="mx-7 h-pxbg-linear-to-br from-transparent via-emerald-200 to-transparent" />
 
         <nav className="flex-1 flex flex-col px-5 py-8 gap-1 overflow-y-auto">
           {NAV_LINKS.map((link, i) => (
@@ -358,34 +359,34 @@ function MobileDrawer({
               }}
               className={`
                 flex items-center justify-between px-4 py-3.5 rounded-2xl
-                text-[12.5px] tracking-[0.08em] uppercase
+                text-[12px] tracking-widest uppercase
                 transition-all duration-200
                 ${
                   activeLink === link.label
-                    ? "bg-gradient-to-r from-rose-50 to-pink-50/60 text-rose-500 font-medium"
+                    ? "bg-linear-to-r from-emerald-50 to-green-50/60 text-emerald-700 font-medium border border-emerald-100"
                     : "text-stone-500 hover:bg-stone-50/80 hover:text-stone-700 font-light"
                 }
               `}
-              style={{ fontFamily: "'Jost', sans-serif" }}
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
               <span className="flex items-center gap-3">
                 <span
                   className={`w-5 text-[10px] font-light
-                    ${activeLink === link.label ? "text-rose-300" : "text-stone-300"}`}
+                    ${activeLink === link.label ? "text-emerald-400" : "text-stone-300"}`}
                 >
                   0{i + 1}
                 </span>
                 {link.label}
               </span>
               {activeLink === link.label && (
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               )}
             </a>
           ))}
         </nav>
 
         <div className="px-7 py-6 space-y-5">
-          <div className="h-px bg-gradient-to-r from-transparent via-rose-100 to-transparent" />
+          <div className="h-pxbg-linear-to-br from-transparent via-emerald-100 to-transparent" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IconButton label="Search" className="border border-stone-100">
@@ -405,10 +406,10 @@ function MobileDrawer({
             <LanguageSwitcher lang={lang} setLang={setLang} />
           </div>
           <p
-            className="text-[11px] text-stone-300 tracking-[0.1em] text-center"
-            style={{ fontFamily: "'Jost', sans-serif" }}
+            className="text-[11px] text-stone-300 tracking-widest text-center"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
-            © 2024 BeautyShop · All rights reserved
+            © 2024 VerdureLab · All rights reserved
           </p>
         </div>
       </aside>
@@ -437,7 +438,7 @@ export default function Navbar(): React.JSX.Element {
       <style>{FONTS}</style>
 
       <div className="fixed top-0 inset-x-0 z-30 flex flex-col">
-        {/* Announcement bar — collapses on scroll */}
+        {/* Announcement bar */}
         <div
           className={`overflow-hidden transition-all duration-500 ease-in-out
             ${scrolled ? "max-h-0 opacity-0" : "max-h-8 opacity-100"}`}
@@ -451,8 +452,8 @@ export default function Navbar(): React.JSX.Element {
             transition-all duration-500
             ${
               scrolled
-                ? "bg-white/92 backdrop-blur-xl shadow-[0_1px_40px_0_rgba(0,0,0,0.06)] py-3"
-                : "bg-white/75 backdrop-blur-md border-b border-stone-100/80 py-4"
+                ? "bg-white/94 backdrop-blur-xl shadow-[0_1px_40px_0_rgba(0,0,0,0.06)] py-3 border-b border-emerald-100/40"
+                : "bg-white/80 backdrop-blur-md border-b border-emerald-100/60 py-4"
             }
           `}
         >
@@ -463,7 +464,7 @@ export default function Navbar(): React.JSX.Element {
 
               {/* Desktop nav */}
               <nav
-                className="hidden lg:flex items-center gap-9 flex-1 justify-center"
+                className="hidden lg:flex items-center gap-10 flex-1 justify-center"
                 aria-label="Main navigation"
               >
                 {NAV_LINKS.map((link) => (
@@ -485,13 +486,13 @@ export default function Navbar(): React.JSX.Element {
                 <div className="hidden sm:flex items-center">
                   {searchOpen ? (
                     <div
-                      className="flex items-center gap-2 bg-stone-50/90 rounded-full
-                        px-3.5 h-9 border border-stone-200"
+                      className="flex items-center gap-2 bg-emerald-50/60 rounded-full
+                        px-3.5 h-9 border border-emerald-200"
                     >
                       <Search
                         size={14}
                         strokeWidth={1.5}
-                        className="text-stone-400 shrink-0"
+                        className="text-emerald-400 shrink-0"
                       />
                       <input
                         autoFocus
@@ -500,7 +501,7 @@ export default function Navbar(): React.JSX.Element {
                         onBlur={() => setSearchOpen(false)}
                         className="w-36 bg-transparent text-[13px] text-stone-600
                           placeholder:text-stone-300 outline-none"
-                        style={{ fontFamily: "'Jost', sans-serif" }}
+                        style={{ fontFamily: "'DM Sans', sans-serif" }}
                       />
                     </div>
                   ) : (
@@ -529,7 +530,8 @@ export default function Navbar(): React.JSX.Element {
                   <ShoppingBag size={17} strokeWidth={1.5} />
                 </IconButton>
 
-                <span className="hidden lg:block w-px h-5 bg-stone-200 mx-1.5" />
+                {/* Divider */}
+                <span className="hidden lg:block w-px h-5 bg-emerald-100 mx-1.5" />
 
                 <div className="hidden sm:block">
                   <LanguageSwitcher lang={lang} setLang={setLang} />
@@ -538,7 +540,7 @@ export default function Navbar(): React.JSX.Element {
                 {/* Hamburger */}
                 <button
                   className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full
-                    text-stone-500 hover:text-rose-500 hover:bg-rose-50
+                    text-stone-500 hover:text-emerald-700 hover:bg-emerald-50
                     transition-all duration-200 ml-1"
                   aria-label="Open menu"
                   onClick={() => setMenuOpen(true)}
@@ -562,7 +564,7 @@ export default function Navbar(): React.JSX.Element {
       />
 
       {/* Page spacer */}
-      <div className="h-[104px] lg:h-[100px]" aria-hidden="true" />
+      <div className="h-26 lg:h-25" aria-hidden="true" />
     </>
   );
 }
