@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role, User } from '../../entities/index';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { UserSession } from '@/entities/user_sessions.enity';
+import { UserSession } from '@/entities/user_sessions.entity';
 
 @Injectable()
 export class AuthService {
@@ -79,8 +79,6 @@ export class AuthService {
 
   async login(user: User, device: string, ip: string) {
     const payload = this.buildPayload(user);
-
-    console.log(payload);
 
     const { access_token, refresh_token } = this.signTokens(payload);
 

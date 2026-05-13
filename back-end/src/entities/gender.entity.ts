@@ -10,6 +10,7 @@ export class Gender {
     type: 'simple-enum',
     enum: GenderEnum,
     default: GenderEnum.OTHER,
+    comment: 'Giới tính',
   })
   gender: Gender;
 

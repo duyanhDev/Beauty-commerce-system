@@ -5,7 +5,7 @@ import { Role, User } from '../../entities/index';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
-import { UserSession } from '@/entities/user_sessions.enity';
+import { UserSession } from '@/entities/user_sessions.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StringValue } from 'ms';
 

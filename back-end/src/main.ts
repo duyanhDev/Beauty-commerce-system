@@ -8,6 +8,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   console.log('🔥 Step 3');
+
+  console.log(process.env);
+
   // ====== Global Prefix ======
   app.setGlobalPrefix('api/v1');
 
