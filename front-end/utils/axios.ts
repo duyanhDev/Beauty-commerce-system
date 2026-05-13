@@ -1,8 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-// 👉 tạo instance
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -10,19 +10,10 @@ const axiosInstance = axios.create({
 });
 
 // =======================
-// 👉 REQUEST INTERCEPTOR
+// REQUEST INTERCEPTOR
 // =======================
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // ⚠️ tránh lỗi SSR
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token");
-
-      if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-
     return config;
   },
   (error: AxiosError) => {
@@ -31,31 +22,55 @@ axiosInstance.interceptors.request.use(
 );
 
 // =======================
-// 👉 RESPONSE INTERCEPTOR
+// RESPONSE INTERCEPTOR
 // =======================
+
+let isRefreshing = false;
+
 axiosInstance.interceptors.response.use(
-  (response) => {
-    // 👉 có thể unwrap data luôn nếu muốn
-    return response;
-  },
-  (error: AxiosError<any>) => {
-    const status = error.response?.status;
+  (response) => response,
 
-    // 🔥 handle global error
-    if (status === 401) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("access_token");
+  async (error: AxiosError<any>) => {
+    const originalRequest: any = error.config;
 
-        // redirect login
-        window.location.href = "/login";
+    // access token hết hạn
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // tránh gọi nhiều lần refresh cùng lúc
+        if (!isRefreshing) {
+          isRefreshing = true;
+
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+            {},
+            {
+              withCredentials: true,
+            },
+          );
+
+          isRefreshing = false;
+        }
+
+        // gọi lại request cũ
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        isRefreshing = false;
+
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(refreshError);
       }
     }
 
-    if (status === 403) {
+    if (error.response?.status === 403) {
       console.error("Forbidden!");
     }
 
-    if (status === 500) {
+    if (error.response?.status === 500) {
       console.error("Server error!");
     }
 

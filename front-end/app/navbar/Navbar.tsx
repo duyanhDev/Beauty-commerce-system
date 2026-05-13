@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Search,
   User,
@@ -8,9 +9,11 @@ import {
   Menu,
   X,
   ChevronDown,
-  Globe,
   Heart,
   Leaf,
+  Settings,
+  MapPin,
+  LogOut,
 } from "lucide-react";
 import {
   Select,
@@ -19,6 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import LoginModal from "@/components/auth/Loginmodal";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Auth } from "@/services/auth.service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,19 +33,16 @@ interface NavLinkItem {
   href: string;
   hasDropdown?: boolean;
 }
-
 interface Language {
   value: string;
   label: string;
   flag: string;
 }
-
 interface NavLinkProps {
   link: NavLinkItem;
   active: boolean;
-  onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onClick: () => void;
 }
-
 interface IconButtonProps {
   children: React.ReactNode;
   label: string;
@@ -47,12 +50,10 @@ interface IconButtonProps {
   onClick?: () => void;
   className?: string;
 }
-
 interface LanguageSwitcherProps {
   lang: string;
   setLang: (lang: string) => void;
 }
-
 interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -61,64 +62,62 @@ interface MobileDrawerProps {
   lang: string;
   setLang: (lang: string) => void;
   cartCount: number;
+  onOpenLogin: () => void;
+}
+interface AuthUser {
+  name: string;
+  email?: string;
+  sessionId: number;
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const NAV_LINKS: NavLinkItem[] = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/shop" },
+  { label: "Shop", href: "/thuong-hieu" },
   { label: "Categories", href: "/categories", hasDropdown: true },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
-
 const LANGUAGES: Language[] = [
   { value: "EN", label: "English", flag: "🇺🇸" },
   { value: "VI", label: "Tiếng Việt", flag: "🇻🇳" },
   { value: "JA", label: "日本語", flag: "🇯🇵" },
 ];
 
-// ─── Fonts ────────────────────────────────────────────────────────────────────
-
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');`;
-
 // ─── Logo ─────────────────────────────────────────────────────────────────────
 
 function Logo(): React.JSX.Element {
+  const router = useRouter();
   return (
-    <a href="/" className="flex items-center gap-3 group select-none shrink-0">
+    <button
+      onClick={() => router.push("/")}
+      className="flex items-center gap-3 select-none shrink-0"
+    >
       <span className="relative flex items-center justify-center w-9 h-9 shrink-0">
-        <span
-          className="absolute inset-0 rounded-full border border-emerald-300/50
-            bg-linear-to-br from-emerald-50 to-green-100
-            group-hover:from-emerald-100 group-hover:to-green-200
-            transition-all duration-500"
-        />
+        <span className="absolute inset-0 rounded-full border border-emerald-300/50 bg-gradient-to-br from-emerald-50 to-green-100" />
         <Leaf
           size={16}
           strokeWidth={1.5}
-          className="relative text-emerald-600 group-hover:text-emerald-700 transition-colors duration-300"
+          className="relative text-emerald-600"
         />
       </span>
       <span className="flex flex-col leading-none">
         <span
-          className="text-[9px] tracking-[0.3em] font-medium uppercase text-emerald-500/80
-            group-hover:text-emerald-600 transition-colors duration-300"
+          className="text-[9px] tracking-[0.3em] font-medium uppercase text-emerald-500/80"
           style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
           botanical · 2024
         </span>
         <span
-          className="text-[22px] font-normal tracking-wide text-stone-800
-            group-hover:text-stone-900 transition-colors duration-300"
+          className="text-[22px] font-normal tracking-wide text-stone-800"
           style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
         >
           Verdure
           <em className="not-italic text-emerald-600 font-normal">Lab</em>
         </span>
       </span>
-    </a>
+    </button>
   );
 }
 
@@ -126,36 +125,23 @@ function Logo(): React.JSX.Element {
 
 function NavLink({ link, active, onClick }: NavLinkProps): React.JSX.Element {
   return (
-    <a
-      href={link.href}
+    <button
       onClick={onClick}
-      className={`
-        relative flex items-center gap-0.5 text-[12px] tracking-[0.12em] uppercase
-        transition-all duration-300 group py-1 shrink-0
-        ${
-          active
-            ? "text-emerald-700 font-medium"
-            : "text-stone-500 hover:text-emerald-600 font-light"
-        }
-      `}
+      className={`relative flex items-center gap-0.5 text-[12px] tracking-[0.12em] uppercase py-1 shrink-0 ${
+        active
+          ? "text-emerald-700 font-medium"
+          : "text-stone-500 hover:text-emerald-600 font-light"
+      }`}
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       {link.label}
-      {link.hasDropdown && (
-        <ChevronDown
-          size={11}
-          className="opacity-50 group-hover:opacity-80 group-hover:translate-y-px transition-all duration-200"
-        />
-      )}
-      {/* Animated underline */}
+      {link.hasDropdown && <ChevronDown size={11} className="opacity-50" />}
       <span
-        className={`
-          absolute -bottom-0.5 left-0 h-px rounded-full bg-emerald-500
-          transition-all duration-300 ease-out
-          ${active ? "w-full opacity-100" : "w-0 opacity-0 group-hover:w-full group-hover:opacity-50"}
-        `}
+        className={`absolute -bottom-0.5 left-0 h-px rounded-full bg-emerald-500 ${
+          active ? "w-full opacity-100" : "w-0 opacity-0"
+        }`}
       />
-    </a>
+    </button>
   );
 }
 
@@ -172,22 +158,11 @@ function IconButton({
     <button
       aria-label={label}
       onClick={onClick}
-      className={`
-        relative flex items-center justify-center w-9 h-9 rounded-full
-        text-stone-500 hover:text-emerald-700 hover:bg-emerald-50/80
-        active:scale-95 transition-all duration-200
-        ${className}
-      `}
+      className={`relative flex items-center justify-center w-9 h-9 rounded-full text-stone-500 hover:text-emerald-700 hover:bg-emerald-50/80 ${className}`}
     >
       {children}
       {badge !== undefined && badge > 0 && (
-        <span
-          className="absolute -top-0.5 -right-0.5 flex items-center justify-center
-            min-w-4 h-4 px-0.5 rounded-full
-            bg-linear-to-br from-emerald-500 to-green-600
-            text-white text-[9px] font-bold leading-none
-            shadow-sm shadow-emerald-200"
-        >
+        <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4 h-4 px-0.5 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 text-white text-[9px] font-bold leading-none shadow-sm shadow-emerald-200">
           {badge > 9 ? "9+" : badge}
         </span>
       )}
@@ -201,53 +176,23 @@ function LanguageSwitcher({
   lang,
   setLang,
 }: LanguageSwitcherProps): React.JSX.Element {
-  const current: Language =
-    LANGUAGES.find((l) => l.value === lang) ?? LANGUAGES[0];
-
+  const current = LANGUAGES.find((l) => l.value === lang) ?? LANGUAGES[0];
   return (
     <Select value={lang} onValueChange={setLang}>
       <SelectTrigger
-        className="
-          h-8 w-auto gap-1 pl-2 pr-2 rounded-full
-          border border-emerald-200/60 bg-emerald-50/40 backdrop-blur-sm
-          text-[11px] font-medium tracking-[0.06em] text-stone-500
-          hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700
-          focus:ring-1 focus:ring-emerald-200 focus:ring-offset-0
-          transition-all duration-200 shadow-none
-          [&>svg]:w-3 [&>svg]:h-3 [&>svg]:text-emerald-400
-        "
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        className="h-7 w-7 p-0 rounded-full flex items-center justify-center border border-emerald-200/60 bg-emerald-50/40 hover:bg-emerald-50 hover:border-emerald-300 focus:ring-1 focus:ring-emerald-200 focus:ring-offset-0 shadow-none [&>svg]:hidden"
+        aria-label={`Language: ${current.label}`}
       >
-        <Globe size={12} className="text-emerald-400 shrink-0" />
         <SelectValue>
-          <span className="flex items-center gap-1">
-            <span className="text-sm leading-none">{current.flag}</span>
-            <span className="tracking-wider">{current.value}</span>
-          </span>
+          <span className="text-base leading-none">{current.flag}</span>
         </SelectValue>
       </SelectTrigger>
-
-      <SelectContent
-        className="
-          min-w-40 rounded-2xl
-          border border-emerald-100/80
-          bg-white/95 backdrop-blur-xl
-          shadow-xl shadow-emerald-100/40
-          p-1.5 mt-1
-        "
-      >
+      <SelectContent className="min-w-40 rounded-2xl border border-emerald-100/80 bg-white/95 backdrop-blur-xl shadow-xl shadow-emerald-100/40 p-1.5 mt-1">
         {LANGUAGES.map((l) => (
           <SelectItem
             key={l.value}
             value={l.value}
-            className="
-              rounded-xl px-3 py-2.5 text-[13px] font-light text-stone-600
-              cursor-pointer select-none
-              hover:bg-emerald-50 hover:text-emerald-700
-              focus:bg-emerald-50 focus:text-emerald-700
-              data-[state=checked]:bg-emerald-50/80 data-[state=checked]:text-emerald-600
-              transition-colors duration-150
-            "
+            className="rounded-xl px-3 py-2.5 text-[13px] font-light text-stone-600 cursor-pointer select-none hover:bg-emerald-50 hover:text-emerald-700 focus:bg-emerald-50 focus:text-emerald-700 data-[state=checked]:bg-emerald-50/80 data-[state=checked]:text-emerald-600"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
           >
             <span className="flex items-center gap-2.5">
@@ -269,14 +214,167 @@ function LanguageSwitcher({
 function AnnouncementBar(): React.JSX.Element {
   return (
     <div
-      className="h-8 w-full flex items-center justify-center
-       bg-linear-to-br from-emerald-800 via-green-700 to-emerald-800
-        text-white/90 text-[10.5px] tracking-[0.2em] font-light uppercase"
+      className="h-8 w-full flex items-center justify-center bg-gradient-to-br from-emerald-800 via-green-700 to-emerald-800 text-white/90 text-[10.5px] tracking-[0.2em] font-light uppercase"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       <Leaf size={9} className="mr-2 opacity-60" fill="currentColor" />
       Free shipping on orders over $50 · 100% natural ingredients
       <Leaf size={9} className="ml-2 opacity-60" fill="currentColor" />
+    </div>
+  );
+}
+
+// ─── User Dropdown ────────────────────────────────────────────────────────────
+
+function UserDropdown({
+  user,
+  sessionId,
+}: {
+  user: AuthUser;
+  sessionId: number | null;
+}): React.JSX.Element {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const logout = useAuthStore((state) => state.logout);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const handleLogOut = async () => {
+    try {
+      const res = await Auth.logoutAuth(sessionId as number);
+      if (res) {
+        logout?.();
+        router.push("/");
+      }
+    } catch (error) {}
+  };
+
+  const handleNavigate = (href: string) => {
+    setOpen(false);
+    router.push(href);
+  };
+
+  const MENU_GROUPS = [
+    [
+      {
+        icon: User,
+        label: "Thông tin cá nhân",
+        href: "/profile",
+        badge: null as number | null,
+      },
+      {
+        icon: ShoppingBag,
+        label: "Đơn hàng của tôi",
+        href: "/orders",
+        badge: 3 as number | null,
+      },
+      {
+        icon: Heart,
+        label: "Yêu thích",
+        href: "/wishlist",
+        badge: null as number | null,
+      },
+    ],
+    [
+      {
+        icon: Settings,
+        label: "Cài đặt tài khoản",
+        href: "/settings",
+        badge: null as number | null,
+      },
+      {
+        icon: MapPin,
+        label: "Địa chỉ giao hàng",
+        href: "/address",
+        badge: null as number | null,
+      },
+    ],
+  ];
+
+  return (
+    <div ref={ref} className="relative hidden sm:block">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 pl-1 pr-2.5 h-8 rounded-full border border-emerald-200/60 bg-emerald-50/40 hover:bg-emerald-50 hover:border-emerald-300"
+        style={{ fontFamily: "'DM Sans', sans-serif" }}
+      >
+        <span className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white text-[10px] font-semibold uppercase shrink-0">
+          {user.name?.charAt(0)}
+        </span>
+        <span className="text-[12px] text-stone-600 hover:text-emerald-700 font-medium tracking-wide">
+          {user.name}
+        </span>
+        <ChevronDown
+          size={11}
+          className={`text-stone-400 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl border border-stone-100 shadow-xl shadow-stone-900/8 overflow-hidden z-50"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+          <div className="flex items-center gap-3 px-4 py-3.5 border-b border-stone-100">
+            <span className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center text-white text-sm font-semibold uppercase shrink-0">
+              {user.name?.charAt(0)}
+            </span>
+            <div className="min-w-0">
+              <p className="text-[13px] font-medium text-stone-800 truncate">
+                {user.name}
+              </p>
+              {user.email && (
+                <p className="text-[11px] text-stone-400 truncate">
+                  {user.email}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {MENU_GROUPS.map((group, gi) => (
+            <div key={gi} className="p-1.5 border-b border-stone-100">
+              {group.map(({ icon: Icon, label, href, badge }) => (
+                <button
+                  key={href}
+                  onClick={() => handleNavigate(href)}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[12.5px] text-stone-600 hover:bg-emerald-50 hover:text-emerald-700"
+                >
+                  <Icon
+                    size={15}
+                    strokeWidth={1.5}
+                    className="text-stone-400 shrink-0"
+                  />
+                  <span className="flex-1 text-left">{label}</span>
+                  {badge !== null && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                      {badge}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          ))}
+
+          <div className="p-1.5">
+            <button
+              onClick={handleLogOut}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[12.5px] text-red-500 hover:bg-red-50"
+            >
+              <LogOut size={15} strokeWidth={1.5} className="shrink-0" />
+              Đăng xuất
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -291,15 +389,16 @@ function MobileDrawer({
   lang,
   setLang,
   cartCount,
+  onOpenLogin,
 }: MobileDrawerProps): React.JSX.Element {
   const drawerRef = useRef<HTMLElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
+      if (drawerRef.current && !drawerRef.current.contains(e.target as Node))
         onClose();
-      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -312,67 +411,48 @@ function MobileDrawer({
     };
   }, [open]);
 
+  if (!open) return <></>;
+
   return (
     <>
       <div
         aria-hidden="true"
-        className={`fixed inset-0 z-40 transition-all duration-400
-          bg-stone-900/20 backdrop-blur-[2px]
-          ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        className="fixed inset-0 z-40 bg-stone-900/20 backdrop-blur-[2px]"
       />
-
       <aside
         ref={drawerRef}
-        className={`
-          fixed top-0 right-0 h-full w-80 z-50 flex flex-col
-          bg-white/98 backdrop-blur-xl
-          shadow-2xl shadow-stone-900/10
-          transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)]
-          ${open ? "translate-x-0" : "translate-x-full"}
-        `}
+        className="fixed top-0 right-0 h-full w-80 z-50 flex flex-col bg-white/98 backdrop-blur-xl shadow-2xl shadow-stone-900/10"
       >
-        {/* Decorative top accent */}
-        <div className="h-1 w-fullbg-linear-to-br from-emerald-400 via-green-500 to-emerald-600" />
-
+        <div className="h-1 w-full bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600" />
         <div className="flex items-center justify-between px-7 py-6">
           <Logo />
           <button
             onClick={onClose}
             aria-label="Close menu"
-            className="p-2 rounded-full text-stone-400 hover:text-emerald-600
-              hover:bg-emerald-50 transition-all duration-200 -mr-1"
+            className="p-2 rounded-full text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 -mr-1"
           >
             <X size={18} strokeWidth={1.5} />
           </button>
         </div>
-
-        <div className="mx-7 h-pxbg-linear-to-br from-transparent via-emerald-200 to-transparent" />
-
         <nav className="flex-1 flex flex-col px-5 py-8 gap-1 overflow-y-auto">
           {NAV_LINKS.map((link, i) => (
-            <a
+            <button
               key={link.label}
-              href={link.href}
               onClick={() => {
                 setActiveLink(link.label);
+                router.push(link.href);
                 onClose();
               }}
-              className={`
-                flex items-center justify-between px-4 py-3.5 rounded-2xl
-                text-[12px] tracking-widest uppercase
-                transition-all duration-200
-                ${
-                  activeLink === link.label
-                    ? "bg-linear-to-r from-emerald-50 to-green-50/60 text-emerald-700 font-medium border border-emerald-100"
-                    : "text-stone-500 hover:bg-stone-50/80 hover:text-stone-700 font-light"
-                }
-              `}
+              className={`flex items-center justify-between px-4 py-3.5 rounded-2xl text-[12px] tracking-widest uppercase ${
+                activeLink === link.label
+                  ? "bg-gradient-to-r from-emerald-50 to-green-50/60 text-emerald-700 font-medium border border-emerald-100"
+                  : "text-stone-500 hover:bg-stone-50/80 hover:text-stone-700 font-light"
+              }`}
               style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
               <span className="flex items-center gap-3">
                 <span
-                  className={`w-5 text-[10px] font-light
-                    ${activeLink === link.label ? "text-emerald-400" : "text-stone-300"}`}
+                  className={`w-5 text-[10px] font-light ${activeLink === link.label ? "text-emerald-400" : "text-stone-300"}`}
                 >
                   0{i + 1}
                 </span>
@@ -381,12 +461,10 @@ function MobileDrawer({
               {activeLink === link.label && (
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               )}
-            </a>
+            </button>
           ))}
         </nav>
-
         <div className="px-7 py-6 space-y-5">
-          <div className="h-pxbg-linear-to-br from-transparent via-emerald-100 to-transparent" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <IconButton label="Search" className="border border-stone-100">
@@ -394,6 +472,16 @@ function MobileDrawer({
               </IconButton>
               <IconButton label="Wishlist" className="border border-stone-100">
                 <Heart size={16} strokeWidth={1.5} />
+              </IconButton>
+              <IconButton
+                label="Account"
+                className="border border-stone-100"
+                onClick={() => {
+                  onClose();
+                  onOpenLogin();
+                }}
+              >
+                <User size={16} strokeWidth={1.5} />
               </IconButton>
               <IconButton
                 label="Cart"
@@ -423,46 +511,24 @@ export default function Navbar(): React.JSX.Element {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [lang, setLang] = useState<string>("EN");
   const [cartCount] = useState<number>(3);
-  const [scrolled, setScrolled] = useState<boolean>(false);
-  const [activeLink, setActiveLink] = useState<string>("Home");
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
+  const [loginOpen, setLoginOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    const onScroll = (): void => setScrolled(window.scrollY > 8);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const user = useAuthStore((state) => state.user);
+  const sessionId = useAuthStore((state) => state.sessionId);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const activeLink = NAV_LINKS.find((l) => l.href === pathname)?.label ?? "";
 
   return (
     <>
-      <style>{FONTS}</style>
-
       <div className="fixed top-0 inset-x-0 z-30 flex flex-col">
-        {/* Announcement bar */}
-        <div
-          className={`overflow-hidden transition-all duration-500 ease-in-out
-            ${scrolled ? "max-h-0 opacity-0" : "max-h-8 opacity-100"}`}
-        >
-          <AnnouncementBar />
-        </div>
-
-        {/* Header */}
-        <header
-          className={`
-            transition-all duration-500
-            ${
-              scrolled
-                ? "bg-white/94 backdrop-blur-xl shadow-[0_1px_40px_0_rgba(0,0,0,0.06)] py-3 border-b border-emerald-100/40"
-                : "bg-white/80 backdrop-blur-md border-b border-emerald-100/60 py-4"
-            }
-          `}
-        >
+        <AnnouncementBar />
+        <header className="bg-white/94 backdrop-blur-xl shadow-[0_1px_40px_0_rgba(0,0,0,0.06)] py-3 border-b border-emerald-100/40">
           <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
             <div className="flex items-center gap-6">
-              {/* Logo */}
               <Logo />
-
-              {/* Desktop nav */}
               <nav
                 className="hidden lg:flex items-center gap-10 flex-1 justify-center"
                 aria-label="Main navigation"
@@ -472,23 +538,14 @@ export default function Navbar(): React.JSX.Element {
                     key={link.label}
                     link={link}
                     active={activeLink === link.label}
-                    onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                      e.preventDefault();
-                      setActiveLink(link.label);
-                    }}
+                    onClick={() => router.push(link.href)}
                   />
                 ))}
               </nav>
-
-              {/* Right actions */}
               <div className="flex items-center gap-1 ml-auto lg:ml-0">
-                {/* Expandable search */}
                 <div className="hidden sm:flex items-center">
                   {searchOpen ? (
-                    <div
-                      className="flex items-center gap-2 bg-emerald-50/60 rounded-full
-                        px-3.5 h-9 border border-emerald-200"
-                    >
+                    <div className="flex items-center gap-2 bg-emerald-50/60 rounded-full px-3.5 h-9 border border-emerald-200">
                       <Search
                         size={14}
                         strokeWidth={1.5}
@@ -499,8 +556,7 @@ export default function Navbar(): React.JSX.Element {
                         type="text"
                         placeholder="Search products…"
                         onBlur={() => setSearchOpen(false)}
-                        className="w-36 bg-transparent text-[13px] text-stone-600
-                          placeholder:text-stone-300 outline-none"
+                        className="w-36 bg-transparent text-[13px] text-stone-600 placeholder:text-stone-300 outline-none"
                         style={{ fontFamily: "'DM Sans', sans-serif" }}
                       />
                     </div>
@@ -513,15 +569,9 @@ export default function Navbar(): React.JSX.Element {
                     </IconButton>
                   )}
                 </div>
-
                 <IconButton label="Wishlist" className="hidden sm:flex">
                   <Heart size={17} strokeWidth={1.5} />
                 </IconButton>
-
-                <IconButton label="Account" className="hidden sm:flex">
-                  <User size={17} strokeWidth={1.5} />
-                </IconButton>
-
                 <IconButton
                   label="Cart"
                   badge={cartCount}
@@ -529,19 +579,28 @@ export default function Navbar(): React.JSX.Element {
                 >
                   <ShoppingBag size={17} strokeWidth={1.5} />
                 </IconButton>
-
-                {/* Divider */}
-                <span className="hidden lg:block w-px h-5 bg-emerald-100 mx-1.5" />
-
-                <div className="hidden sm:block">
+                <div className="hidden sm:flex items-center ml-1">
                   <LanguageSwitcher lang={lang} setLang={setLang} />
                 </div>
-
-                {/* Hamburger */}
+                <span className="hidden lg:block w-px h-5 bg-emerald-100 mx-2" />
+                {user ? (
+                  <UserDropdown user={user} sessionId={sessionId} />
+                ) : (
+                  <button
+                    onClick={() => setLoginOpen(true)}
+                    className="hidden sm:flex items-center gap-1.5 pl-2.5 pr-3.5 h-8 rounded-full border border-emerald-200/60 bg-emerald-50/40 hover:bg-emerald-100/60 hover:border-emerald-300 text-[11px] tracking-[0.08em] font-medium text-stone-500 hover:text-emerald-700"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
+                    <User
+                      size={13}
+                      strokeWidth={1.5}
+                      className="text-emerald-400"
+                    />
+                    Sign in
+                  </button>
+                )}
                 <button
-                  className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full
-                    text-stone-500 hover:text-emerald-700 hover:bg-emerald-50
-                    transition-all duration-200 ml-1"
+                  className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 ml-1"
                   aria-label="Open menu"
                   onClick={() => setMenuOpen(true)}
                 >
@@ -557,13 +616,13 @@ export default function Navbar(): React.JSX.Element {
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         activeLink={activeLink}
-        setActiveLink={setActiveLink}
+        setActiveLink={() => {}}
         lang={lang}
         setLang={setLang}
         cartCount={cartCount}
+        onOpenLogin={() => setLoginOpen(true)}
       />
-
-      {/* Page spacer */}
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
       <div className="h-26 lg:h-25" aria-hidden="true" />
     </>
   );

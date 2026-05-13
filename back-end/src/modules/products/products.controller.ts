@@ -1,33 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseInterceptors,
+  UploadedFiles,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryDto } from '@/shared/queryDto.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
- async create(@Body() createProductDto: CreateProductDto) {
+  @UseInterceptors(FilesInterceptor('images'))
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() images: Express.Multer.File[],
+  ) {
+    console.log('body', createProductDto);
+    console.log('files', images);
 
-  console.log("body",createProductDto);
-  
-    const data = await this.productsService.create(createProductDto);
+    const data = await this.productsService.create(createProductDto, images);
 
-    return{
-      EC:0,
-      message:"Tạo sản phẩm thành công",
-      data:data
-    }
+    return {
+      EC: 0,
+      message: 'Tạo sản phẩm thành công',
+      data,
+    };
   }
 
   @Get()
-  async findAll(@Query() queryDTO:QueryDto) {
-
+  async findAll(@Query() queryDTO: QueryDto) {
     console.log(queryDTO);
-    
-    return  await this.productsService.findAll(queryDTO);
+
+    return await this.productsService.findAll(queryDTO);
   }
 
   @Get(':id')

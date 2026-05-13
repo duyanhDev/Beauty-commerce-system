@@ -37,12 +37,13 @@ import { ProductTranslationsModule } from './modules/product_translations/produc
 import { RolePermissionsModule } from './modules/role-permissions/role-permissions.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { CountryModule } from './modules/country/country.module';
+import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: `.env.${process.env.NODE_ENV}`,
       load: [configuration],
       validationSchema,
     }),
@@ -78,6 +79,7 @@ import { CountryModule } from './modules/country/country.module';
     RolePermissionsModule,
     BrandModule,
     CountryModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

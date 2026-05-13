@@ -24,7 +24,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
+  @Post('register')
   @ApiResponse({ status: 200, description: 'Tạo tài khoản mới thành công' })
   @ApiResponse({ status: 404, description: 'Lỗi khi tạo tài khoản mới ' })
   async create(@Body() createAuthDto: RegisterDto) {
@@ -54,17 +54,14 @@ export class AuthController {
     const device = `${result.browser.name} ${result.os.name}`;
     const user = await this.authService.validateUser(body.email, body.password);
 
-    const { access_token, refresh_token } = await this.authService.login(
-      user,
-      device ?? 'unknown',
-      ip,
-    );
+    const { access_token, refresh_token, sessionId } =
+      await this.authService.login(user, device ?? 'unknown', ip);
 
     res.cookie('access_token', access_token, {
       httpOnly: true, // JS không đọc được
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 1000, // 15 phút (ms)
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refresh_token', refresh_token, {
@@ -78,8 +75,8 @@ export class AuthController {
       EC: 0,
       message: 'Đăng nhập thành công',
       user,
-      access_token,
-      refresh_token,
+      sessionId: sessionId,
+      role: user.role,
     };
   }
   // ─── POST /auth/refresh ────────────────────────────────
@@ -89,6 +86,9 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     // ✅ Đọc từ cookie thay vì body
+
+    console.log('req', req);
+
     const refreshToken = req.cookies['refresh_token'];
     if (!refreshToken)
       throw new UnauthorizedException('Không có refresh token');
@@ -100,7 +100,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 1000,
+      maxAge: 15 * 60 * 1000,
     });
 
     res.cookie('refresh_token', refresh_token, {
@@ -120,13 +120,13 @@ export class AuthController {
     @Param('sessionId', ParseIntPipe) sessionId: number,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.logout(sessionId);
+    const data = await this.authService.logout(sessionId);
 
     // ✅ Xóa cookie
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
-    return { message: 'Đăng xuất thành công' };
+    return { message: 'Đăng xuất thành công', data, EC: 0 };
   }
   // ─── DELETE /auth/logout-all ───────────────────────────
   @UseGuards(AuthGuard('jwt'))
@@ -141,5 +141,13 @@ export class AuthController {
   @Get('sessions')
   async getSessions(@Req() req: Request & { user: any }) {
     return this.authService.getSessions(req.user.id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  async me(@Req() req: Request & { user: any }) {
+    return {
+      user: req.user,
+    };
   }
 }
