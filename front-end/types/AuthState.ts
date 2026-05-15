@@ -1,8 +1,16 @@
-import { User } from "./User";
+export interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+}
 
 export interface AuthState {
-  user: User | null;
-  sessionId: number | null;
-  setUser: (user: User, sessionId: number | null) => void;
-  logout?: () => void;
+  user: AuthUser | null;
+  hydrated: boolean;
+
+  setUser: (user: AuthUser | null) => void;
+
+  logout: () => void;
+
+  setHydrated: (hydrated: boolean) => void;
 }

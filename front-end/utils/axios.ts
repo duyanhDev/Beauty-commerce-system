@@ -9,23 +9,26 @@ const axiosInstance = axios.create({
   },
 });
 
-// =======================
-// REQUEST INTERCEPTOR
-// =======================
 axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    return config;
-  },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  },
+  (config: InternalAxiosRequestConfig) => config,
+  (error: AxiosError) => Promise.reject(error),
 );
 
-// =======================
-// RESPONSE INTERCEPTOR
-// =======================
-
 let isRefreshing = false;
+let failedQueue: {
+  resolve: (value: unknown) => void;
+  reject: (reason?: unknown) => void;
+}[] = [];
+
+const processQueue = (error: unknown) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error);
+    else prom.resolve(null);
+  });
+  failedQueue = [];
+};
+
+const SKIP_RETRY_URLS = ["/auth/refresh", "/auth/login", "/auth/logout"];
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -33,46 +36,42 @@ axiosInstance.interceptors.response.use(
   async (error: AxiosError<any>) => {
     const originalRequest: any = error.config;
 
-    // access token hết hạn
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isSkipped = SKIP_RETRY_URLS.some((url) =>
+      originalRequest?.url?.includes(url),
+    );
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isSkipped
+    ) {
       originalRequest._retry = true;
 
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => axiosInstance(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
+
+      isRefreshing = true;
+
       try {
-        // tránh gọi nhiều lần refresh cùng lúc
-        if (!isRefreshing) {
-          isRefreshing = true;
-
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-            {},
-            {
-              withCredentials: true,
-            },
-          );
-
-          isRefreshing = false;
-        }
-
-        // gọi lại request cũ
+        await axiosInstance.post("/auth/refresh");
+        processQueue(null);
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        isRefreshing = false;
-
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-
+        processQueue(refreshError);
+        // ← không redirect, không reload, chỉ reject
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
-    if (error.response?.status === 403) {
-      console.error("Forbidden!");
-    }
-
-    if (error.response?.status === 500) {
-      console.error("Server error!");
-    }
+    if (error.response?.status === 403) console.error("Forbidden!");
+    if (error.response?.status === 500) console.error("Server error!");
 
     return Promise.reject(error.response?.data || error.message);
   },

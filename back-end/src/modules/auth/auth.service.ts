@@ -30,15 +30,10 @@ export class AuthService {
     const refresh_token = this.jwtService.sign(payload, { expiresIn: '7d' });
     return { access_token, refresh_token };
   }
-
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.repoUser.findOne({
-      where: {
-        email,
-      },
-      relations: {
-        role: true,
-      },
+      where: { email },
+      relations: { role: true },
     });
 
     if (!user) throw new UnauthorizedException('Email không tồn tại');
@@ -46,7 +41,9 @@ export class AuthService {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new UnauthorizedException('Mật khẩu không đúng');
 
-    return user;
+    const { password: _, ...safeUser } = user;
+
+    return safeUser as User;
   }
   async create(dto: RegisterDto) {
     const existingUser = await this.repoUser.findOne({
@@ -104,7 +101,7 @@ export class AuthService {
 
     const sesions = await this.sessionRepo.find({
       where: { user: { id: payload.sub } },
-      relations: ['user'],
+      relations: ['user', 'user.role'],
     });
     let currentSession: UserSession | null = null;
 
@@ -139,8 +136,36 @@ export class AuthService {
   }
 
   // ─── LOGOUT 1 DEVICE ──────────────────────────────────
-  async logout(sessionId: number) {
-    await this.sessionRepo.delete({ id: sessionId });
+  // ─── LOGOUT 1 DEVICE ──────────────────────────────────
+  async logout(refreshToken: string) {
+    // Phải verify token trước để lấy userId, rồi tìm session theo user
+    let payload: { sub: number; email: string };
+    try {
+      payload = this.jwtService.verify(refreshToken);
+    } catch {
+      throw new UnauthorizedException('Token không hợp lệ');
+    }
+
+    // Tìm tất cả session của user rồi so sánh hash (giống refreshToken())
+    const sessions = await this.sessionRepo.find({
+      where: { user: { id: payload.sub } },
+    });
+
+    let targetSession: UserSession | null = null;
+    for (const session of sessions) {
+      const isMatch = await bcrypt.compare(refreshToken, session.refreshToken);
+      if (isMatch) {
+        targetSession = session;
+        break;
+      }
+    }
+
+    if (!targetSession) {
+      throw new UnauthorizedException('Session không tồn tại');
+    }
+
+    await this.sessionRepo.delete(targetSession.id);
+    return targetSession;
   }
 
   async logoutAll(userId: number) {

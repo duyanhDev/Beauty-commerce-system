@@ -24,13 +24,9 @@ export const Auth = {
     );
   },
 
-  logoutAuth: async (sessionId: number) => {
-    return await axios.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/logout/${sessionId}`,
-      {},
-    );
+  logoutAuth: async () => {
+    return await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`);
   },
-
   getCurrentUser: async () => {
     return await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`);
   },

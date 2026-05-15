@@ -47,6 +47,8 @@ export class AuthController {
       (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
       req.ip ||
       'unknown';
+
+    // lấy thông tin thiết bị
     const parser = new UAParser(req.headers['user-agent']);
 
     const result = parser.getResult();
@@ -87,8 +89,6 @@ export class AuthController {
   ) {
     // ✅ Đọc từ cookie thay vì body
 
-    console.log('req', req);
-
     const refreshToken = req.cookies['refresh_token'];
     if (!refreshToken)
       throw new UnauthorizedException('Không có refresh token');
@@ -115,18 +115,20 @@ export class AuthController {
 
   // ─── DELETE /auth/logout/:sessionId ───────────────────
   @UseGuards(AuthGuard('jwt'))
-  @Delete('logout/:sessionId')
-  async logout(
-    @Param('sessionId', ParseIntPipe) sessionId: number,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const data = await this.authService.logout(sessionId);
+  @Delete('logout')
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies['refresh_token'];
 
-    // ✅ Xóa cookie
+    if (!refreshToken) {
+      throw new UnauthorizedException('Không tìm thấy refresh token');
+    }
+
+    await this.authService.logout(refreshToken);
+
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
-    return { message: 'Đăng xuất thành công', data, EC: 0 };
+    return { message: 'Đăng xuất thành công', EC: 0 };
   }
   // ─── DELETE /auth/logout-all ───────────────────────────
   @UseGuards(AuthGuard('jwt'))

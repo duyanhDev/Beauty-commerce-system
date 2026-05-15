@@ -67,7 +67,6 @@ interface MobileDrawerProps {
 interface AuthUser {
   name: string;
   email?: string;
-  sessionId: number;
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -137,7 +136,7 @@ function NavLink({ link, active, onClick }: NavLinkProps): React.JSX.Element {
       {link.label}
       {link.hasDropdown && <ChevronDown size={11} className="opacity-50" />}
       <span
-        className={`absolute -bottom-0.5 left-0 h-px rounded-full bg-emerald-500 ${
+        className={`absolute -bottom-0.5 left-0 h-px rounded-full bg-emerald-500 transition-all duration-200 ${
           active ? "w-full opacity-100" : "w-0 opacity-0"
         }`}
       />
@@ -226,13 +225,7 @@ function AnnouncementBar(): React.JSX.Element {
 
 // ─── User Dropdown ────────────────────────────────────────────────────────────
 
-function UserDropdown({
-  user,
-  sessionId,
-}: {
-  user: AuthUser;
-  sessionId: number | null;
-}): React.JSX.Element {
+function UserDropdown({ user }: { user: AuthUser }): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const logout = useAuthStore((state) => state.logout);
@@ -250,7 +243,7 @@ function UserDropdown({
 
   const handleLogOut = async () => {
     try {
-      const res = await Auth.logoutAuth(sessionId as number);
+      const res = await Auth.logoutAuth();
       if (res) {
         logout?.();
         router.push("/");
@@ -315,7 +308,7 @@ function UserDropdown({
         </span>
         <ChevronDown
           size={11}
-          className={`text-stone-400 ${open ? "rotate-180" : ""}`}
+          className={`text-stone-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -505,6 +498,15 @@ function MobileDrawer({
   );
 }
 
+function UserSkeleton(): React.JSX.Element {
+  return (
+    <div className="hidden sm:flex items-center gap-2 pl-1 pr-2.5 h-8 rounded-full border border-emerald-100 bg-emerald-50/20">
+      {/* Bỏ animate-pulse để không bị nhấp nháy khi lag */}
+      <span className="w-6 h-6 rounded-full bg-emerald-100" />
+      <span className="w-16 h-3 rounded-full bg-emerald-100" />
+    </div>
+  );
+}
 // ─── Main Navbar ──────────────────────────────────────────────────────────────
 
 export default function Navbar(): React.JSX.Element {
@@ -513,14 +515,27 @@ export default function Navbar(): React.JSX.Element {
   const [cartCount] = useState<number>(3);
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   const [loginOpen, setLoginOpen] = useState<boolean>(false);
-
+  const [mounted, setMounted] = useState(false);
+  const hydrated = useAuthStore((state) => state.hydrated);
   const user = useAuthStore((state) => state.user);
-  const sessionId = useAuthStore((state) => state.sessionId);
+
+  console.log("🔵 Navbar render - user:", user, "hydrated:", hydrated);
+
   const pathname = usePathname();
   const router = useRouter();
 
   const activeLink = NAV_LINKS.find((l) => l.href === pathname)?.label ?? "";
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  const authContent = !hydrated ? (
+    <UserSkeleton />
+  ) : user ? (
+    <UserDropdown user={user} />
+  ) : (
+    <button onClick={() => setLoginOpen(true)}>Sign in</button>
+  );
   return (
     <>
       <div className="fixed top-0 inset-x-0 z-30 flex flex-col">
@@ -583,22 +598,7 @@ export default function Navbar(): React.JSX.Element {
                   <LanguageSwitcher lang={lang} setLang={setLang} />
                 </div>
                 <span className="hidden lg:block w-px h-5 bg-emerald-100 mx-2" />
-                {user ? (
-                  <UserDropdown user={user} sessionId={sessionId} />
-                ) : (
-                  <button
-                    onClick={() => setLoginOpen(true)}
-                    className="hidden sm:flex items-center gap-1.5 pl-2.5 pr-3.5 h-8 rounded-full border border-emerald-200/60 bg-emerald-50/40 hover:bg-emerald-100/60 hover:border-emerald-300 text-[11px] tracking-[0.08em] font-medium text-stone-500 hover:text-emerald-700"
-                    style={{ fontFamily: "'DM Sans', sans-serif" }}
-                  >
-                    <User
-                      size={13}
-                      strokeWidth={1.5}
-                      className="text-emerald-400"
-                    />
-                    Sign in
-                  </button>
-                )}
+                {authContent}
                 <button
                   className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full text-stone-500 hover:text-emerald-700 hover:bg-emerald-50 ml-1"
                   aria-label="Open menu"

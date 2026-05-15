@@ -106,7 +106,7 @@ export default function LoginModal({
         if (res && res.data && res.data.EC === 0) {
           console.log(res.data);
 
-          setUser(res.data.user, res.data.sessionId);
+          setUser(res.data.user);
           onClose();
           setLoading(false);
         }
