@@ -15,6 +15,12 @@ import { Review } from './review.entity';
 import { Wishlist } from './wishlist.entity';
 import { UserSession } from './user_sessions.entity';
 
+export enum UserStatus {
+  ACTIVE = 'active',
+  SUSPENDED = 'suspended',
+  INVITED = 'invited',
+  INACTIVE = 'inactive',
+}
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -34,6 +40,8 @@ export class User {
 
   @Column({ length: 20, nullable: true })
   phone: string;
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status: UserStatus;
 
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'role_id' })

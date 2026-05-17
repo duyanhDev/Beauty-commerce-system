@@ -17,7 +17,11 @@ async function bootstrap() {
   app.use(cookieParser()); // ✅ Bắt buộc để đọc req.cookies
 
   app.enableCors({
-    origin: ['http://localhost', 'http://localhost:3000'],
+    origin: [
+      'http://localhost',
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ],
     credentials: true,
   });
 

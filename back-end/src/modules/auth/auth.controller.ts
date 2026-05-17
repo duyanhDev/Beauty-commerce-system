@@ -148,8 +148,10 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   async me(@Req() req: Request & { user: any }) {
+    // ✅ Gọi thêm service để lấy full user với role object
+    const fullUser = await this.authService.getMe(req.user.id);
     return {
-      user: req.user,
+      user: fullUser,
     };
   }
 }

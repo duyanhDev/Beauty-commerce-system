@@ -1,15 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from '@/entities';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User) private readonly repoUser: Repository<User>,
+  ) {}
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    const users = await this.repoUser.find({
+      where: {
+        role: {
+          name: 'customer',
+        },
+      },
+
+      relations: ['role'],
+
+      order: {
+        created_at: 'DESC',
+      },
+    });
+
+    return users.map((user) => ({
+      ...user,
+      role: user.role?.name,
+    }));
   }
 
   findOne(id: number) {

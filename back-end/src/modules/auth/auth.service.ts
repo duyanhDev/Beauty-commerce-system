@@ -178,4 +178,16 @@ export class AuthService {
       select: ['id', 'device', 'ip', 'created_at'],
     });
   }
+
+  async getMe(userId: number) {
+    const user = await this.repoUser.findOne({
+      where: { id: userId },
+      relations: { role: true }, // ✅ load role object đầy đủ
+    });
+
+    if (!user) throw new NotFoundException('User không tồn tại');
+
+    const { password: _, ...safeUser } = user;
+    return safeUser;
+  }
 }
