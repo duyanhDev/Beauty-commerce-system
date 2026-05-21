@@ -1,8 +1,10 @@
 'use client'
 
-import { z } from 'zod'
+import { number, z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { api } from '@/lib/axios'
 import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,6 +40,8 @@ const formSchema = z
     role: z.string().min(1, 'Role is required.'),
     confirmPassword: z.string().transform((pwd) => pwd.trim()),
     isEdit: z.boolean(),
+    avatarUrl: z.instanceof(File).optional(),
+    id: z.number(),
   })
   .refine(
     (data) => {
@@ -111,6 +115,7 @@ export function UsersActionDialog({
           password: '',
           confirmPassword: '',
           isEdit,
+          avatarUrl: undefined,
         }
       : {
           name: '',
@@ -119,11 +124,54 @@ export function UsersActionDialog({
           phoneNumber: '',
           password: '',
           confirmPassword: '',
+          avatarUrl: undefined,
+
           isEdit,
         },
   })
 
-  const onSubmit = (values: UserForm) => {
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: (values: UserForm) => {
+      return api.post('auth/register', {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      })
+    },
+    onSuccess: (res) => {
+      console.log(res)
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+
+  const uploadUser = useMutation({
+    mutationFn: ({ id, formData }: { id: number; formData: FormData }) => {
+      return api.patch(`users/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+  const onSubmit = async (values: UserForm) => {
+    const formData = new FormData()
+
+    formData.append('name', values.name)
+    formData.append('phone', values.phoneNumber)
+    if (values.avatarUrl) {
+      formData.append('avatarUrl', values.avatarUrl)
+    }
+
+    console.log(values)
+
+    if (isEdit) {
+      await uploadUser.mutateAsync({ id: values.id, formData })
+    } else {
+      await mutation.mutateAsync(values)
+    }
+
     form.reset()
     showSubmittedData(values)
     onOpenChange(false)
@@ -225,6 +273,45 @@ export function UsersActionDialog({
                         value,
                       }))}
                     />
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='avatarUrl'
+                render={({ field: { onChange, ...field } }) => (
+                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
+                    <FormLabel className='col-span-2 text-end'>
+                      Avatar
+                    </FormLabel>
+
+                    <FormField
+                      control={form.control}
+                      name='avatarUrl'
+                      render={({ field: { onChange, ref, name } }) => (
+                        <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
+                          <FormLabel className='col-span-2 text-end'>
+                            Avatar
+                          </FormLabel>
+
+                          <Input
+                            type='file'
+                            accept='image/*'
+                            className='col-span-4'
+                            name={name}
+                            ref={ref}
+                            onChange={(e) => {
+                              onChange(e.target.files?.[0])
+                            }}
+                          />
+
+                          <FormMessage className='col-span-4 col-start-3' />
+                        </FormItem>
+                      )}
+                    />
+
                     <FormMessage className='col-span-4 col-start-3' />
                   </FormItem>
                 )}

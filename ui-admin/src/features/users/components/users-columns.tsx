@@ -69,6 +69,15 @@ export const usersColumns: ColumnDef<User>[] = [
     cell: ({ row }) => <div>{row.getValue('phone') ?? '—'}</div>,
     enableSorting: false,
   },
+
+  {
+    accessorKey: 'avatarUrl',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Avatar' />
+    ),
+    cell: ({ row }) => <div>{row.getValue('avatarUrl') ?? '—'}</div>,
+    enableSorting: false,
+  },
   {
     accessorKey: 'status',
     header: ({ column }) => (

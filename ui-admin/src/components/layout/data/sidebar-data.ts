@@ -63,8 +63,8 @@ export function getSidebarData(): SidebarData {
             icon: LayoutDashboard,
           },
           {
-            title: 'Tasks',
-            url: '/tasks',
+            title: 'Danh mục sản phẩm',
+            url: '/categories',
             icon: ListTodo,
           },
           {

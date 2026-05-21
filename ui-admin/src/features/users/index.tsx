@@ -9,7 +9,7 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersProvider } from './components/users-provider'
 import { UsersTable } from './components/users-table'
-import { users, useUsers } from './data/users'
+import { useUsers } from './data/users'
 
 const route = getRouteApi('/_authenticated/users/')
 

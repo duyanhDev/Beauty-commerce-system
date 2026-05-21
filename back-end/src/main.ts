@@ -9,8 +9,6 @@ async function bootstrap() {
 
   console.log('🔥 Step 3');
 
-  console.log(process.env);
-
   // ====== Global Prefix ======
   app.setGlobalPrefix('api/v1');
 
@@ -68,5 +66,8 @@ async function bootstrap() {
 
   console.log(`🚀 Server is running on: http://localhost:${port}/api/v1`);
   console.log(`📚 Swagger docs:         http://localhost:${port}/api/docs`);
+
+  console.log(process.env.CLOUDINARY_NAME);
+  console.log(process.env.CLOUDINARY_API_SECRET);
 }
 bootstrap();

@@ -6,10 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -37,8 +41,14 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @UseInterceptors(FileInterceptor('avatarUrl'))
+  update(
+    @Param('id') id: number,
+    @Body('name') name: string,
+    @Body('phone') phone: string,
+    @UploadedFile() avtarUrl: Express.Multer.File,
+  ) {
+    return this.usersService.update(id, name, avtarUrl, phone);
   }
 
   @Delete(':id')

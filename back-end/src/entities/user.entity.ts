@@ -38,6 +38,9 @@ export class User {
   @Column({ nullable: true })
   avatarUrl?: string;
 
+  @Column({ name: 'public_id', length: 255, nullable: true })
+  publicId: string;
+
   @Column({ length: 20, nullable: true })
   phone: string;
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
