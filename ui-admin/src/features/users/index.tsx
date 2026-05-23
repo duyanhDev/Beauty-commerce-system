@@ -43,11 +43,7 @@ export function Users() {
           <p className='text-sm text-destructive'>Lỗi: {error.message}</p>
         )}
 
-        <UsersTable
-          data={data ?? []} // ✅ key fix
-          search={search}
-          navigate={navigate}
-        />
+        <UsersTable data={data ?? []} search={search} navigate={navigate} />
       </Main>
 
       <UsersDialogs />

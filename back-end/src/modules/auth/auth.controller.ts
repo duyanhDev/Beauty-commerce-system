@@ -110,6 +110,8 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    console.log('Token đã được làm mới');
+
     return { message: 'Token đã được làm mới' };
   }
 
