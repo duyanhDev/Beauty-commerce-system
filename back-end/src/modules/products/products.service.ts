@@ -64,22 +64,22 @@ export class ProductsService {
     const [category, gender, country, brand] = await Promise.all([
       this.checkExist(
         Category,
-        { id: createProductDto.category_id },
+        { id: Number(createProductDto.category_id) },
         'Không tồn tại category',
       ),
       this.checkExist(
         Gender,
-        { id: createProductDto.gender_id },
+        { id: Number(createProductDto.gender_id) },
         'Không tồn tại gender',
       ),
       this.checkExist(
         Country,
-        { id: createProductDto.country_id },
+        { id: Number(createProductDto.country_id) },
         'Không tồn tại country',
       ),
       this.checkExist(
         Brand,
-        { id: createProductDto.brand_id },
+        { id: Number(createProductDto.brand_id) },
         'Không tồn tại brand',
       ),
     ]);
@@ -100,14 +100,18 @@ export class ProductsService {
 
     // upload nhiều ảnh
     if (images && images.length > 0) {
+      console.log(images);
+
       const productImages = await Promise.all(
-        images.map(async (file) => {
+        images.map(async (file, index) => {
           const uploadResult = await this.cloudinaryService.uploadFile(file);
+          console.log(uploadResult);
 
           return this.manager.create(ProductImage, {
-            image_url: uploadResult.secure_url,
-            public_id: uploadResult.public_id,
+            imageUrl: uploadResult.secure_url,
+            publicId: uploadResult.public_id,
             product: savedProduct,
+            isMain: index === 0,
           });
         }),
       );

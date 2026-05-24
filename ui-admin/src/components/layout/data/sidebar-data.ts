@@ -93,7 +93,7 @@ export function getSidebarData(): SidebarData {
               },
               {
                 title: 'Thêm sản phẩm',
-                url: '/products/create',
+                url: '/product-create',
               },
             ],
           },

@@ -38,6 +38,7 @@ import { RolePermissionsModule } from './modules/role-permissions/role-permissio
 import { BrandModule } from './modules/brand/brand.module';
 import { CountryModule } from './modules/country/country.module';
 import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
+import { GenderModule } from './modules/gender/gender.module';
 
 @Module({
   imports: [
@@ -80,6 +81,7 @@ import { CloudinaryModule } from './services/cloudinary/cloudinary.module';
     BrandModule,
     CountryModule,
     CloudinaryModule,
+    GenderModule,
   ],
   controllers: [AppController],
   providers: [AppService],
