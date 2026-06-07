@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ProductAttribute } from './product-attribute.entity';
 import { VariantAttributeValue } from './variant-attribute-value.entity';
+import { AttributeValueImage } from './attribute_value_images.entity';
 
 @Entity('attribute_values')
 export class AttributeValue {
@@ -25,4 +26,8 @@ export class AttributeValue {
 
   @OneToMany(() => VariantAttributeValue, (vav) => vav.attributeValue)
   variantAttributeValues: VariantAttributeValue[];
+  @OneToMany(() => AttributeValueImage, (img) => img.attributeValue, {
+    cascade: true,
+  })
+  images: AttributeValueImage[];
 }

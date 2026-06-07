@@ -62,6 +62,18 @@ export class Product {
   @JoinColumn({ name: 'gender_id' })
   genders: Gender;
 
+  @Column({
+    length: 50,
+    nullable: true,
+  })
+  productCode: string;
+
+  @Column({
+    length: 36,
+    nullable: true,
+  })
+  verifyToken: string;
+
   @CreateDateColumn({ type: 'datetime' })
   created_at: Date;
 }

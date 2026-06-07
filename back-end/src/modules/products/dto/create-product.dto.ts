@@ -1,6 +1,7 @@
 import { CreateProductImageDto } from '@/modules/product-image/dto/create-product-image.dto';
+import { CreateProductVariantDto } from '@/modules/product-variants/dto/create-product-variant.dto';
 import { CreateProductTranslationDto } from '@/modules/product_translations/dto/create-product_translation.dto';
-import { Transform, Type } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsNumber,
@@ -43,4 +44,19 @@ export class CreateProductDto {
   @ValidateNested({ each: true })
   @Type(() => CreateProductTranslationDto)
   translations: CreateProductTranslationDto[];
+
+  @Transform(({ value }) => {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return Array.isArray(parsed)
+      ? plainToInstance(CreateProductVariantDto, parsed)
+      : [];
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProductVariantDto)
+  variants: CreateProductVariantDto[];
+
+  @IsOptional()
+  @IsString()
+  attributeValueImageMap?: string;
 }

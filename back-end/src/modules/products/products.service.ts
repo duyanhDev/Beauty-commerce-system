@@ -11,6 +11,7 @@ import {
   EntityManager,
   EntityTarget,
   FindOptionsWhere,
+  In,
   ObjectLiteral,
 } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
@@ -22,10 +23,17 @@ import {
   Product,
   ProductTranslation,
   ProductImage,
+  ProductVariant,
+  AttributeValue,
+  VariantAttributeValue,
+  ProductAttribute,
+  VariantImage,
 } from '@/entities';
 import { generateSlug } from '@/pipe/generateSlug';
 import { QueryDto } from '@/shared/queryDto.dto';
 import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
+import { randomUUID } from 'crypto';
+import { AttributeValueImage } from '@/entities/attribute_value_images.entity';
 @Injectable()
 export class ProductsService {
   constructor(
@@ -49,14 +57,11 @@ export class ProductsService {
 
   async create(
     createProductDto: CreateProductDto,
-    images: Express.Multer.File[],
+    allFiles: Express.Multer.File[],
   ) {
     const existingNamePro = await this.manager.findOne(Product, {
-      where: {
-        name: createProductDto.name,
-      },
+      where: { name: createProductDto.name },
     });
-
     if (existingNamePro) {
       throw new ConflictException('Tên sản phẩm đã tồn tại');
     }
@@ -85,6 +90,8 @@ export class ProductsService {
     ]);
 
     const slug = generateSlug(createProductDto.name);
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const productCode = `${category.name}-${random}`;
 
     const product = this.manager.create(Product, {
       name: createProductDto.name,
@@ -94,43 +101,122 @@ export class ProductsService {
       genders: gender,
       countrys: country,
       brand,
+      productCode,
+      verifyToken: randomUUID(),
     });
-
     const savedProduct = await this.manager.save(product);
 
-    // upload nhiều ảnh
-    if (images && images.length > 0) {
-      console.log(images);
+    // ── 1. Upload ảnh chung của product (fieldname = 'images') ──────────────
+    const productFiles = allFiles.filter((f) => f.fieldname === 'images');
+    let imageThumbnail = '';
 
+    if (productFiles.length > 0) {
       const productImages = await Promise.all(
-        images.map(async (file, index) => {
-          const uploadResult = await this.cloudinaryService.uploadFile(file);
-          console.log(uploadResult);
+        productFiles.map(async (file, index) => {
+          const result = await this.cloudinaryService.uploadFile(file);
+          if (index === 0) imageThumbnail = result.secure_url;
 
           return this.manager.create(ProductImage, {
-            imageUrl: uploadResult.secure_url,
-            publicId: uploadResult.public_id,
+            imageUrl: result.secure_url,
+            publicId: result.public_id,
             product: savedProduct,
             isMain: index === 0,
           });
         }),
       );
-
       await this.manager.save(ProductImage, productImages);
     }
 
-    // translations
+    // ── 2. Translations ─────────────────────────────────────────────────────
     if (createProductDto.translations?.length > 0) {
-      const translations = createProductDto.translations.map((trans) => {
-        return this.manager.create(ProductTranslation, {
+      const translations = createProductDto.translations.map((trans) =>
+        this.manager.create(ProductTranslation, {
           ...trans,
           product: savedProduct,
-        });
-      });
-
+        }),
+      );
       await this.manager.save(ProductTranslation, translations);
     }
 
+    console.log(createProductDto.variants);
+    // ── 3. Variants + VariantAttributeValues + VariantImages ────────────────
+    if (createProductDto.variants?.length > 0) {
+      for (const variantDto of createProductDto.variants) {
+        const sku = `${savedProduct.productCode}-${randomUUID().slice(0, 8).toUpperCase()}`;
+
+        const variant = this.manager.create(ProductVariant, {
+          originalPrice: variantDto.originalPrice,
+          stock: variantDto.stock,
+          discountPercent: variantDto.discountPercent ?? 0,
+          costPrice: variantDto.costPrice,
+          weight: variantDto.weight,
+          note: variantDto.note,
+          product: savedProduct,
+          sku,
+          imageThumbnail,
+        });
+        const savedVariant = await this.manager.save(ProductVariant, variant);
+
+        // ── 3a. Gắn attribute_values vào variant ──────────────────────────────
+        if (variantDto.attributeValueIds?.length > 0) {
+          console.log(variantDto.attributeValueIds);
+
+          const attributeValues = await this.manager.find(AttributeValue, {
+            where: { id: In(variantDto.attributeValueIds) },
+          });
+
+          if (attributeValues.length !== variantDto.attributeValueIds.length) {
+            throw new NotFoundException('Một số attribute value không tồn tại');
+          }
+
+          // Insert vào bảng trung gian variant_attribute_values
+          const variantAttributeValues = attributeValues.map((av) =>
+            this.manager.create(VariantAttributeValue, {
+              variant: savedVariant, // FK → product_variants.id
+              attributeValue: av, // FK → attribute_values.id
+            }),
+          );
+          await this.manager.save(
+            VariantAttributeValue,
+            variantAttributeValues,
+          );
+        }
+
+        // ── 3b. Upload ảnh riêng của variant ─────────────────────────────────
+        if (variantDto.imageKeys?.length > 0) {
+          const variantImageEntities = await Promise.all(
+            variantDto.imageKeys.map(async (key, index) => {
+              const file = allFiles.find((f) => f.fieldname === key);
+              if (!file) return null;
+
+              const result = await this.cloudinaryService.uploadFile(file);
+
+              // Cập nhật thumbnail của variant = ảnh đầu tiên
+              if (index === 0) {
+                await this.manager.update(ProductVariant, savedVariant.id, {
+                  imageThumbnail: result.secure_url,
+                });
+              }
+
+              return this.manager.create(VariantImage, {
+                variant: savedVariant,
+                imageUrl: result.secure_url,
+                publicId: result.public_id,
+                isMain: index === 0,
+                sortOrder: index,
+              });
+            }),
+          );
+
+          const validImages = variantImageEntities.filter(
+            (img): img is VariantImage => img !== null,
+          );
+          if (validImages.length > 0) {
+            await this.manager.save(VariantImage, validImages);
+          }
+        }
+      }
+    }
     return savedProduct;
   }
   async findAll({ page, limit, keyword, sortBy, order }: QueryDto) {

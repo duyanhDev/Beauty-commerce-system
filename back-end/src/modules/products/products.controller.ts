@@ -15,7 +15,10 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { QueryDto } from '@/shared/queryDto.dto';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import {
+  AnyFilesInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/common/decorators';
@@ -27,13 +30,13 @@ export class ProductsController {
 
   @Post()
   @Roles('admin')
-  @UseInterceptors(FilesInterceptor('images'))
+  @UseInterceptors(AnyFilesInterceptor())
   async create(
     @Body() createProductDto: CreateProductDto,
-    @UploadedFiles() images: Express.Multer.File[],
+    @UploadedFiles() allFiles: Express.Multer.File[],
   ) {
-    console.log('files', images);
-    const data = await this.productsService.create(createProductDto, images);
+    console.log('files', allFiles);
+    const data = await this.productsService.create(createProductDto, allFiles);
     return {
       EC: 0,
       message: 'Tạo sản phẩm thành công',

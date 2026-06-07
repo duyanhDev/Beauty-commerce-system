@@ -67,6 +67,17 @@ export function getSidebarData(): SidebarData {
             url: '/categories',
             icon: ListTodo,
           },
+
+          {
+            title: 'Danh mục quản lý dung tich',
+            url: '/product-values',
+            icon: ListTodo,
+          },
+          {
+            title: 'Danh mục quản lý thuộc tính',
+            url: '/attribute-values',
+            icon: Package,
+          },
           {
             title: 'Apps',
             url: '/apps',

@@ -26,12 +26,14 @@ async function bootstrap() {
   // ====== Validation Pipe ======
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // tự xoá field không có trong DTO
-      forbidNonWhitelisted: true, // báo lỗi nếu gửi field lạ
-      transform: true, // tự convert kiểu dữ liệu (string -> number, ...)
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true, // ← phải có cái này
+      transformOptions: {
+        enableImplicitConversion: true, // ← thêm cái này
+      },
     }),
   );
-
   // ====== Swagger ======
   const config = new DocumentBuilder()
     .setTitle('Cosmetics Shop API')

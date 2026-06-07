@@ -10,7 +10,7 @@ export const productsSchema = z.object({
   category_id: z.number().min(1, 'Vui lòng chọn danh mục'),
   brand_id: z.number().min(1, 'Vui lòng chọn thương hiệu'),
   country_id: z.number().min(1, 'Vui lòng chọn quốc gia'),
-  gender_id: z.number().min(1, 'Vui lòng chọn giới tính'),
+  gender_id: z.number().min(1, 'Vui lòng chọn g   ới tính'),
   imgages: z.array(imgages).min(1, 'Cần ít nhất 1 hình ảnh'),
 })
 
