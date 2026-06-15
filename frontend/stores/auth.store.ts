@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
             user: res.user,
             isAuthenticated: true,
             sessionId: res.sessionId,
-            // ✅ Đánh dấu đã check luôn sau login
+
             authChecked: true,
           });
         } catch (error) {
@@ -53,7 +53,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       fetchMe: async () => {
-        // ✅ Nếu đang fetch rồi thì bỏ qua, tránh double call
         if (get().isFetchingMe) return;
 
         set({ isFetchingMe: true });
@@ -65,7 +64,6 @@ export const useAuthStore = create<AuthState>()(
             authChecked: true,
           });
         } catch (error) {
-          // ✅ Chỉ clear user nếu server trả 401, không phải lỗi network
           const isUnauthorized = (error as any)?.response?.status === 401;
           if (isUnauthorized) {
             set({

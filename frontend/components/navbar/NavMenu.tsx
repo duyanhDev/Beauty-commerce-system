@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 
 interface navItem {
   label: string;
@@ -67,7 +68,9 @@ export default function NavMenu() {
             >
               {item.label}
               {item.dropdown.length > 0 && (
-                <span className="nav-chevron">⌄</span>
+                <span className="nav-chevron">
+                  <ChevronDown />
+                </span>
               )}
             </Link>
 

@@ -46,6 +46,10 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
 import { useCategories } from '../categories/data/categories'
+import {
+  ProductAttribute,
+  useProductAttributes,
+} from './data/product-attributes'
 import { useBrands, useCountries, useGenders } from './data/product-create'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -62,59 +66,7 @@ interface AttributeValue {
 interface AttributeGroup {
   id: number
   name: string
-  values: AttributeValue[]
-}
-
-// ── Fake data — thay bằng useQuery khi có API ─────────────────────────────────
-const useProductAttributesWithValues = (): {
-  data: AttributeGroup[]
-  isLoading: boolean
-} => {
-  return {
-    isLoading: false,
-    data: [
-      {
-        id: 1,
-        name: 'Dung tích',
-        values: [
-          { id: 1, value: '50ml' },
-          { id: 2, value: '100ml' },
-          { id: 3, value: '236ml' },
-          { id: 4, value: '473ml' },
-        ],
-      },
-      {
-        id: 2,
-        name: 'Loại da',
-        values: [
-          { id: 5, value: 'Da dầu' },
-          { id: 6, value: 'Da khô' },
-          { id: 7, value: 'Da hỗn hợp' },
-          { id: 8, value: 'Da nhạy cảm' },
-        ],
-      },
-      {
-        id: 3,
-        name: 'Màu sắc',
-        values: [
-          { id: 9, value: 'Đỏ' },
-          { id: 10, value: 'Hồng' },
-          { id: 11, value: 'Nude' },
-          { id: 12, value: 'Cam' },
-        ],
-      },
-      {
-        id: 4,
-        name: 'Size',
-        values: [
-          { id: 13, value: 'S' },
-          { id: 14, value: 'M' },
-          { id: 15, value: 'L' },
-          { id: 16, value: 'XL' },
-        ],
-      },
-    ],
-  }
+  values: ProductAttribute[]
 }
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
@@ -181,7 +133,7 @@ export default function ProductCreate() {
   const category = useCategories()
   const countries = useCountries()
   const gender = useGenders()
-  const { data: attributeGroups } = useProductAttributesWithValues()
+  const { data: attributeGroups } = useProductAttributes()
 
   const form = useForm<ProductCreateInput, any, ProductCreateOutput>({
     resolver: zodResolver(productsSchema),
@@ -836,8 +788,8 @@ export default function ProductCreate() {
                         {/* Summary tags — hiển thị những gì đã chọn */}
                         {selectedValueIds.length > 0 && (
                           <div className='flex flex-wrap gap-1.5'>
-                            {attributeGroups?.map((group) => {
-                              const selectedVal = group.values.find((v) =>
+                            {attributeGroups?.map((group: any) => {
+                              const selectedVal = group.values.find((v: any) =>
                                 selectedValueIds.includes(v.id)
                               )
                               if (!selectedVal) return null
@@ -870,8 +822,8 @@ export default function ProductCreate() {
 
                         {/* 1 Select per attribute group */}
                         <div className='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-                          {attributeGroups?.map((group) => {
-                            const currentValue = group.values.find((v) =>
+                          {attributeGroups?.map((group: any) => {
+                            const currentValue = group.values.find((v: any) =>
                               selectedValueIds.includes(v.id)
                             )
                             return (
@@ -900,7 +852,7 @@ export default function ProductCreate() {
                                   </SelectTrigger>
                                   <SelectContent>
                                     <SelectGroup>
-                                      {group.values.map((val) => (
+                                      {group.values.map((val: any) => (
                                         <SelectItem
                                           key={val.id}
                                           value={String(val.id)}

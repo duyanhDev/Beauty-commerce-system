@@ -7,25 +7,30 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProductAttributesService {
+  constructor(
+    @InjectRepository(ProductAttribute)
+    private repoAtrribute: Repository<ProductAttribute>,
+  ) {}
+  async create(createProductAttributeDto: CreateProductAttributeDto) {
+    const name = await this.repoAtrribute.findOne({
+      where: { name: createProductAttributeDto.name },
+    });
 
-  constructor( @InjectRepository(ProductAttribute) private repoAtrribute:Repository<ProductAttribute>){}
- async create(createProductAttributeDto: CreateProductAttributeDto) {
-     
-    const name = await this.repoAtrribute.findOne({where:{name:createProductAttributeDto.name}})
-
-    if (name){
-        throw new NotFoundException("Tên attribute đã tồn tại trong database");
+    if (name) {
+      throw new NotFoundException('Tên attribute đã tồn tại trong database');
     }
 
-    const attribute = this.repoAtrribute.create(createProductAttributeDto)
+    const attribute = this.repoAtrribute.create(createProductAttributeDto);
 
-    return await this.repoAtrribute.save(attribute)
+    return await this.repoAtrribute.save(attribute);
   }
 
- async findAll() {
-     const attributes = await this.repoAtrribute.find()
+  async findAll() {
+    const attributes = await this.repoAtrribute.find({
+      relations: ['values'],
+    });
 
-     return attributes
+    return attributes;
   }
 
   findOne(id: number) {

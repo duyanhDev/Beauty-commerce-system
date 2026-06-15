@@ -1,21 +1,22 @@
 import { Suspense } from "react";
 import QueryProvider from "@/providers/query-provider";
-import { AuthProvider } from "@/components/AuthProvider";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import BfcacheHandler from "@/components/BfcacheHandler/BfcacheHandler";
+import { Header } from "@/components/navbar";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
+        <Header />
         <QueryProvider>
-          <Suspense fallback={null}>
-            <AuthProvider>
-              <BfcacheHandler />
-              {children}
-            </AuthProvider>
-          </Suspense>
+          <Suspense fallback={null}>{children}</Suspense>
         </QueryProvider>
       </body>
     </html>

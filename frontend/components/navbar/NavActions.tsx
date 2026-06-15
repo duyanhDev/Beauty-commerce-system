@@ -12,18 +12,6 @@ export default function NavActions() {
   const user = useAuthStore((state) => state.user);
   const hydrated = useHydrated();
 
-  // ✅ Chỉ chờ hydrate — không chờ fetchMe
-  if (!hydrated) {
-    return (
-      <div className="nav-actions">
-        <SearchBar />
-        <div style={{ width: 18, height: 18 }} />
-        <div style={{ width: 18, height: 18 }} />
-        <div style={{ width: 18, height: 18 }} />
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="nav-actions">
@@ -43,7 +31,7 @@ export default function NavActions() {
         </Link>
 
         {user ? (
-          <p>{user.name}</p>
+          <p className="text-black">{user.name}</p>
         ) : (
           <button
             className="icon-btn"

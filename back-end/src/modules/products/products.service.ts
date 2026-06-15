@@ -138,7 +138,6 @@ export class ProductsService {
       await this.manager.save(ProductTranslation, translations);
     }
 
-    console.log(createProductDto.variants);
     // ── 3. Variants + VariantAttributeValues + VariantImages ────────────────
     if (createProductDto.variants?.length > 0) {
       for (const variantDto of createProductDto.variants) {
@@ -159,8 +158,6 @@ export class ProductsService {
 
         // ── 3a. Gắn attribute_values vào variant ──────────────────────────────
         if (variantDto.attributeValueIds?.length > 0) {
-          console.log(variantDto.attributeValueIds);
-
           const attributeValues = await this.manager.find(AttributeValue, {
             where: { id: In(variantDto.attributeValueIds) },
           });
@@ -223,7 +220,10 @@ export class ProductsService {
     const qb = this.manager
       .createQueryBuilder(Product, 'products')
       .leftJoinAndSelect('products.images', 'images')
-      .leftJoinAndSelect('products.brand', 'brand');
+      .leftJoinAndSelect('products.brand', 'brand')
+      .leftJoinAndSelect('products.variants', 'variants')
+      .leftJoinAndSelect('variants.images', 'variantImages');
+
     if (keyword) {
       qb.andWhere(
         `(LOWER(products.name) LIKE :keyword 

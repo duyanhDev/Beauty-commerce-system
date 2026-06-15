@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import { MoreHorizontalIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,8 +21,22 @@ import { Header } from '@/components/layout/header'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { fetchDataAttributeValue } from './data/data'
 
 export function Attribute_values() {
+  const { isPending, isError, data, error } = useQuery({
+    queryKey: ['attribute-value'],
+    queryFn: fetchDataAttributeValue,
+  })
+
+  if (isPending) {
+    return <span>Loading...</span>
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>
+  }
+
   return (
     <div>
       <Header fixed>
@@ -41,78 +56,49 @@ export function Attribute_values() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead>Price</TableHead>
+              <TableHead>STT</TableHead>
+              <TableHead>Biến thể</TableHead>
+              <TableHead>Thuộc tính</TableHead>
               <TableHead className='text-right'>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell className='font-medium'>Wireless Mouse</TableCell>
-              <TableCell>$29.99</TableCell>
-              <TableCell className='text-right'>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='icon' className='size-8'>
-                      <MoreHorizontalIcon />
-                      <span className='sr-only'>Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end'>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant='destructive'>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className='font-medium'>Mechanical Keyboard</TableCell>
-              <TableCell>$129.99</TableCell>
-              <TableCell className='text-right'>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='icon' className='size-8'>
-                      <MoreHorizontalIcon />
-                      <span className='sr-only'>Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end'>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant='destructive'>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className='font-medium'>USB-C Hub</TableCell>
-              <TableCell>$49.99</TableCell>
-              <TableCell className='text-right'>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant='ghost' size='icon' className='size-8'>
-                      <MoreHorizontalIcon />
-                      <span className='sr-only'>Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align='end'>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant='destructive'>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
+            {data &&
+              data.length > 0 &&
+              data.map((attr: any, index: number) => {
+                return (
+                  <TableRow key={attr.id}>
+                    <TableCell className='font-medium'>{index + 1}</TableCell>
+                    <TableCell className='font-medium'>{attr.value}</TableCell>
+                    <TableCell className='font-medium'>
+                      {attr.attribute.name}
+                    </TableCell>
+
+                    <TableCell className='text-right'>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            className='size-8'
+                          >
+                            <MoreHorizontalIcon />
+                            <span className='sr-only'>Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align='end'>
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem variant='destructive'>
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
           </TableBody>
         </Table>
       </div>

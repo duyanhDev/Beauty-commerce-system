@@ -1,20 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AttributeValuesService } from './attribute-values.service';
 import { CreateAttributeValueDto } from './dto/create-attribute-value.dto';
 import { UpdateAttributeValueDto } from './dto/update-attribute-value.dto';
 
 @Controller('attribute-values')
 export class AttributeValuesController {
-  constructor(private readonly attributeValuesService: AttributeValuesService) {}
+  constructor(
+    private readonly attributeValuesService: AttributeValuesService,
+  ) {}
 
   @Post()
-  create(@Body() createAttributeValueDto: CreateAttributeValueDto) {
-    return this.attributeValuesService.create(createAttributeValueDto);
+  async create(@Body() createAttributeValueDto: CreateAttributeValueDto) {
+    const data = await this.attributeValuesService.create(
+      createAttributeValueDto,
+    );
+
+    return {
+      EC: 0,
+      message: 'Tạo thành công thuộc tính mới',
+      data,
+    };
   }
 
   @Get()
-  findAll() {
-    return this.attributeValuesService.findAll();
+  async findAll() {
+    const data = await this.attributeValuesService.findAll();
+    return {
+      EC: 0,
+      message: 'Lấy dữ liệu thành công',
+      data: data,
+    };
   }
 
   @Get(':id')
@@ -23,7 +46,10 @@ export class AttributeValuesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAttributeValueDto: UpdateAttributeValueDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAttributeValueDto: UpdateAttributeValueDto,
+  ) {
     return this.attributeValuesService.update(+id, updateAttributeValueDto);
   }
 
