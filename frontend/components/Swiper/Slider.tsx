@@ -78,13 +78,13 @@ export default function SliderHome() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-3">
-      <div className="flex flex-col md:flex-row gap-3 items-stretch">
+    <div className="container mx-auto px-4 py-3">
+      <div className="flex flex-col md:flex-row gap-3 items-stretch p-5">
         {/* ── SLIDER ── */}
         <div className="w-full md:w-[70%] rounded-xl overflow-hidden">
           <Swiper
             speed={600}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            autoplay={{ delay: 2000, disableOnInteraction: false }}
             loop={true}
             pagination={{ clickable: true }}
             navigation={true}

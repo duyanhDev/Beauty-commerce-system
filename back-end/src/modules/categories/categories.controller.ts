@@ -19,7 +19,6 @@ import { RolesGuard } from '@/common/guards/roles.guard';
 import { QueryDto } from '@/shared/queryDto.dto';
 import { Permissions } from '@/common/decorators';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
@@ -41,7 +40,6 @@ export class CategoriesController {
   }
 
   @Get()
-  @Permissions('user:delete')
   async findAll(@Query() dto: QueryDto) {
     const data = await this.categoriesService.findAll(dto);
 

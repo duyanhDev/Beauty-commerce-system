@@ -23,11 +23,11 @@ import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 import { RolesGuard } from '@/common/guards/roles.guard';
 import { Roles } from '@/common/decorators';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
   @Roles('admin')
   @UseInterceptors(AnyFilesInterceptor())
@@ -46,11 +46,19 @@ export class ProductsController {
 
   @Get()
   async findAll(@Query() queryDTO: QueryDto) {
-    console.log(queryDTO);
-
     return await this.productsService.findAll(queryDTO);
   }
 
+  @Get('/:slug')
+  async getProductBySlug(@Param('slug') slug: string) {
+    const data = await this.productsService.getProductBySlug(slug);
+
+    return {
+      EC: 0,
+      data: data,
+      message: 'Lấy sản phẩm thành công',
+    };
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);

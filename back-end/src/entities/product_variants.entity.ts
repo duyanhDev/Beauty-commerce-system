@@ -16,6 +16,7 @@ import { VariantImage } from './variant-image.entity';
 import { CartItem } from './cart-item.entity';
 import { OrderItem } from './order-item.entity';
 import { InventoryLog } from './inventory-log.entity';
+import { Exclude, Expose } from 'class-transformer';
 
 const decimalTransformer = {
   to: (value: number) => value,
@@ -31,6 +32,7 @@ export class ProductVariant {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
+  @Exclude()
   product: Product;
 
   @Column({ length: 100, unique: true })
@@ -196,26 +198,56 @@ export class ProductVariant {
 
   // HELPERS
 
+  // Số tiền được giảm dựa trên discountPercent (áp trên giá gốc)
+  @Expose()
+  get discountAmount(): number {
+    const original = Number(this.originalPrice || 0);
+    const percent = Number(this.discountPercent || 0);
+
+    if (percent <= 0) return 0;
+
+    return Math.round((original * percent) / 100);
+  }
+
+  // Giá sau khi áp discountPercent (chưa xét đến salePrice/sale theo thời gian)
+  @Expose()
+  get priceAfterDiscount(): number {
+    const original = Number(this.originalPrice || 0);
+    return Math.max(original - this.discountAmount, 0);
+  }
+
+  @Expose()
   get finalPrice(): number {
     const now = new Date();
 
     const isSaleActive =
       this.salePrice !== null &&
       this.salePrice !== undefined &&
+      Number(this.salePrice) > 0 &&
       (!this.saleStartAt || now >= this.saleStartAt) &&
       (!this.saleEndAt || now <= this.saleEndAt);
 
-    return isSaleActive ? Number(this.salePrice) : Number(this.originalPrice);
+    if (isSaleActive) {
+      return Number(this.salePrice);
+    }
+
+    // Nếu không có sale theo thời gian, ưu tiên áp dụng discountPercent (nếu có)
+    if (this.discountPercent && Number(this.discountPercent) > 0) {
+      return this.priceAfterDiscount;
+    }
+
+    return Number(this.originalPrice);
   }
 
+  @Expose()
   get profit(): number {
     return Number(this.finalPrice || 0) - Number(this.costPrice || 0);
   }
-
+  @Expose()
   get availableStock(): number {
     return Math.max(this.stock - this.reserved, 0);
   }
-
+  @Expose()
   get isLowStock(): boolean {
     return this.availableStock <= this.lowStockThreshold;
   }

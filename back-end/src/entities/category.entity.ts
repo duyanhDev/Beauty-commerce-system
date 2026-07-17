@@ -24,6 +24,9 @@ export class Category {
   @Column({ length: 100, nullable: true })
   slug: string;
 
+  @Column({ type: 'text', nullable: true })
+  url_image: string;
+
   @ManyToOne(() => Category, (cat) => cat.children, { nullable: true })
   @JoinColumn({ name: 'parent_id' })
   parent: Category;

@@ -13,7 +13,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.variable} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full bg-gray-100 flex flex-col">
         <Header />
         <QueryProvider>
           <Suspense fallback={null}>{children}</Suspense>

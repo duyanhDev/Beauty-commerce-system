@@ -34,6 +34,7 @@ import { QueryDto } from '@/shared/queryDto.dto';
 import { CloudinaryService } from '@/services/cloudinary/cloudinary.service';
 import { randomUUID } from 'crypto';
 import { AttributeValueImage } from '@/entities/attribute_value_images.entity';
+import { instanceToPlain } from 'class-transformer';
 @Injectable()
 export class ProductsService {
   constructor(
@@ -247,8 +248,10 @@ export class ProductsService {
     }
 
     const [data, total] = await qb.getManyAndCount();
+
+    const plainData = instanceToPlain(data);
     const result = {
-      data,
+      data: plainData,
       meta: {
         total,
         page,
@@ -258,6 +261,24 @@ export class ProductsService {
     };
 
     return result;
+  }
+
+  async getProductBySlug(slug: string) {
+    const product = await this.manager.findOne(Product, {
+      where: {
+        slug: slug,
+      },
+      relations: [
+        'images',
+        'brand',
+        'variants',
+        'variants.images',
+        'variants.attributeValues',
+        'variants.attributeValues.attributeValue',
+      ],
+    });
+
+    return product;
   }
 
   findOne(id: number) {
